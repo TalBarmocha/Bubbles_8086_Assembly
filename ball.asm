@@ -14,6 +14,7 @@ color_picker DW 0d
 current_ball DB 0d
 next_ball DB 0d
 seed DW 1d
+;ghghg
 ;Game:
 score DW 0d  ; MAX score is ≈ 64K -> limit max score to 50K
 lifes DB 5d
