@@ -226,7 +226,7 @@ random_picker proc uses ax dx bx
 random_picker endp
 
 ;==================================================
-;This procedure draws a  line of 20 balls
+;This procedure draws a line of 20 balls
 ;==================================================
 draw_balls_line proc uses bx cx dx si di
     push location_x
@@ -401,11 +401,11 @@ get_currBall_nxtBall proc uses ax bx dx si
     add si,si
     add si,dx                       
     mov bx,[si]         ;load the address of color#color_picker into BX          
-    mov al,[bx]         ;AL store the generated color
+    mov al,[bx+4]         ;AL store the generated color
     cmp current_ball, 0d
     jne premote_balls
     mov current_ball,al
-    mov al,[bx+1]
+    mov al,[bx+3]
     mov next_ball,al
     ret
     premote_balls:
