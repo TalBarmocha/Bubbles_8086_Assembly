@@ -205,25 +205,18 @@ get_sec_RTC endp
 random_picker proc uses ax dx bx
     ; Load seed  value into AX
     mov ax, seed
-    ; a = 23, c = 17, m = 121
-    ; result = (23 * ax + 17) % 121
-    mov bx, 23
-    mul bx          ; DX:AX = AX * 23
-    add ax, 17       ; AX + 17
-    ; Apply modulo 121 (m = 121)
-    mov bx, 121
-    div bx          ; AX = AX / 121, DX = remainder
-    ; The result is in DX
-    mov ax, dx      ; Move the result to AX is in range [0,120]
-    check_ax:
-    cmp ax, 120           ; Check if AX >= 120d
-    jae normalize           ; If so, normalize AX
-    mov color_picker, ax
-    mov seed,ax
+    ; a = 241, c = 7, m = 120
+    ; result = (241 * ax + 7) % 120
+    mov bx, 241
+    mul bx          ; DX:AX = AX * 241
+    add ax, 7       ; AX + 7
+    ; Apply modulo 120 (m = 120)
+    mov bx, 120
+    div bx          ; AX = AX / 120, DX = remainder
+    ; The result is in DX, the result is in range [0,119]
+    mov color_picker, dx
+    mov seed,dx
     ret
-    normalize:
-    sub AX, 1            
-    jmp check_ax           ; Continue checking
 random_picker endp
 
 ;==================================================
