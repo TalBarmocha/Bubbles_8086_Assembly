@@ -206,6 +206,8 @@ random_picker proc uses ax dx bx
     ; Load seed  value into AX
     mov ax, seed
     ; a = 241, c = 7, m = 120
+    ; a-1 = 240 which is divisible by all prime factors of m (2,3,5)
+    ; c = 7 is relatively prime to m.(GCD(7,120)=1)
     ; result = (241 * ax + 7) % 120
     mov bx, 241
     mul bx          ; DX:AX = AX * 241
