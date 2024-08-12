@@ -4,7 +4,7 @@
 ;==================================================
 get_sec_RTC proc uses ax
     xor ax,ax
-    mov al, 00h              ; Select RTC register for seconds
+    mov al, 00h             ; Select RTC register for seconds
     out 70h, al             ; Set RTC register address
     in al, 71h              ; Read seconds value and store it in AL
     mov seed,ax

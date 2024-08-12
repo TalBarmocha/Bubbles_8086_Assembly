@@ -38,6 +38,12 @@ main proc
     mov al, 13h
     int 10h
     call GAME_START
+    ;init cursor
+    mov ax, 0h
+    int 33h
+    ;show cursor
+    mov ax, 1
+    int 33h
     main_loop:
     ; Check if a key is pressed
     call check_mouse
@@ -51,9 +57,22 @@ main proc
     int 16h            ; BIOS keyboard interrupt
 
     cmp al, 'q'        ; Compare the pressed key with 'q'
-    jne main_loop      ; If not 'q', continue looping
+    je exit      ; If not 'q', continue looping
+    cmp al, 'r'
+    je restart
+    jmp main_loop
+    restart:
+        mov score, 0d
+        mov lifes, 5d
+        mov color_picker, 0d
+        mov current_ball, 0d
+        mov next_ball, 0d
+        mov location_x, 05d
+        mov location_y, 05d
+        call GAME_START
+    jmp main_loop
     ;exit
-    ;move back to taxt mode
+    exit:
     call IVT_return
     mov ah, 00h
     mov al, 03h

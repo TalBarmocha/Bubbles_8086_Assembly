@@ -2,28 +2,31 @@
 ;This procedure handles the mouse interrupt
 ;==================================================
 check_mouse proc uses ax bx cx dx
-    ; Check for mouse click
-    mov ax, 3   ; Get mouse status
+    ; Check for mouse click and get mouse position
+    mov ax, 3
     int 33h
-    test bx, 1  ; Check left button
-    jz no_click
-    ; Get mouse position
-    mov ax, 3
-    int 33h     ; Automatically enters coordinates for DX and CX
-    shr cx, 1   ; Divide CX by 2 to convert from 640x200 to 320x200
-    click:
-    mov ax, 3
-    int 33h 
-    test bx, 0 ;check if the button is lifted
-    jne click
-    ; Store mouse position
+    test bx, 1          ; Check left button
+    jz no_click         ; If not clicked, skip to no_click
+
+    shr cx, 1           ; Divide CX by 2 to convert from 640x200 to 320x200
     mov mouse_x, cx
     mov mouse_y, dx
-    call shoot
+
+    wait_release:
+    mov ax, 3
+    int 33h
+    test bx, 1          ; Check if the button is still pressed
+    jnz wait_release    ; If pressed, wait for release
+
+    mov cx, mouse_x
+    mov dx, mouse_y
+    mov location_x, cx
+    mov location_y, dx
+    call draw_ball
+
     no_click:
     ret
 check_mouse endp
-
 
 shoot proc uses ax bx cx dx si di   
     ; Calculate direction
@@ -73,7 +76,9 @@ shoot proc uses ax bx cx dx si di
         mov location_x, ax
         mov location_y, dx     
         call draw_ball
-
+        ;update player location
+        mov player_x, ax
+        mov player_y, dx 
         ; Small delay
         mov cx, 1000
         delay_loop:
@@ -157,7 +162,7 @@ erase_current_ball proc uses ax es bx di si cx
     add di, bx         ; DI = Y * 320 (64 + 256 = 320)
     add di, player_x   ; DI = Y * 320 + X
     ;row check
-    mov cx, 12d
+    mov cx, 13d
     col_erase:
         push cx
         mov cx, 12d
