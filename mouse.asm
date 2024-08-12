@@ -12,6 +12,8 @@ check_mouse proc uses ax bx cx dx
     int 33h     ; Automatically enters coordinates for DX and CX
     shr cx, 1   ; Divide CX by 2 to convert from 640x200 to 320x200
     click:
+    mov ax, 3
+    int 33h 
     test bx, 0 ;check if the button is lifted
     jne click
     ; Store mouse position
@@ -172,58 +174,3 @@ erase_current_ball proc uses ax es bx di si cx
     loop col_erase
     ret
 erase_current_ball endp
-
-
-;==================================================
-;This procedure handles the timer interrupt
-;==================================================
-new_Int1C proc far uses ax bx es si
-    ;down a line
-    int 80h                 ; Call DOS interrupt for timer
-    iret                    ; Return from interrupt
-new_Int1C endp
-
-;==================================================
-;This procedure changes the Interrupt Vector Table (IVT) for the timer
-;==================================================
-IVT_change proc uses ax es
-    mov ax, 0h              ; Set segment address to 0
-    mov es, ax
-    cli                     ; Clear interrupts
-
-    ; Copy old ISR 1C IP to free vector
-    mov ax, es:[1Ch*4]     ; Get old ISR IP
-    mov es:[80h*4], ax     ; Store IP at free vector
-    ; Copy old ISR 1C CS to free vector
-    mov ax, es:[1Ch*4+2]   ; Get old ISR CS
-    mov es:[80h*4+2], ax   ; Store CS at free vector
-
-    ; Copy IP of new_Int1C to IVT[1C]
-    mov ax, offset new_Int1C ; Get new ISR IP
-    mov es:[1Ch*4], ax     ; Set new IP in IVT
-    ; Copy CS of new_Int1C to IVT[1C]
-    mov ax, cs             ; Get new ISR CS
-    mov es:[1Ch*4+2], ax   ; Set new CS in IVT
-
-    sti                     ; Set interrupts
-    ret
-IVT_change endp
-
-;==================================================
-;This procedure restores the old Interrupt Vector Table (IVT) for the timer
-;==================================================
-IVT_return proc uses ax es
-    mov ax, 0h              ; Set segment address to 0
-    mov es, ax
-    cli                     ; Clear interrupts
-
-    ; Copy old ISR 1C IP to IVT[1C]
-    mov ax, es:[80h*4]     ; Get old ISR IP from free vector
-    mov es:[1Ch*4], ax     ; Set old IP in IVT
-    ; Copy old ISR 1C CS to IVT[1C]
-    mov ax, es:[80h*4+2]   ; Get old ISR CS from free vector
-    mov es:[1Ch*4+2], ax   ; Set old CS in IVT
-
-    sti                     ; Set interrupts
-    ret
-IVT_return endp

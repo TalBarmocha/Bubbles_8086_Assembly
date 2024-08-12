@@ -1,66 +1,4 @@
-.model small        
-.stack 100h         
-
-.data
-;Graphics:
-INCLUDE fontdata.asm
-INCLUDE colors.asm
-
-;INCLUDE manu.asm
-location_x DW 05d
-location_y DW 05d
-background_color equ 100d
-;Balls:
-color_picker DW 0d
-current_ball DB 0d
-next_ball DB 0d
-seed DW 1d
-;Game:
-score DW 0d  ; MAX score is ≈ 64K -> limit max score to 50K
-lifes DB 5d
-init_player_x equ 119d
-init_player_y equ 180d
-player_x DW init_player_x
-player_y Dw init_player_y
-mouse_x DW 0d
-mouse_y DW 0d
-
-.code
-include mouse.asm
-main proc
-    mov ax, @data               ; Load data segment address into AX
-    mov ds, ax                  ; Move data segment address to DS
-    call IVT_change
-    call GAME_START
-    main_loop:
-    ; Check if a key is pressed
-    ;call check_mouse
-    mov ah, 1          ; Function 01h: Check for keystroke availability
-    int 16h            ; BIOS keyboard interrupt
-    jz main_loop       ; If no key is pressed, continue looping
-
-    ; If a key is pressed, get the key
-    mov ah, 0          ; Function 00h: Get keystroke
-    int 16h            ; BIOS keyboard interrupt
-
-    cmp al, 'q'        ; Compare the pressed key with 'q'
-    jne main_loop      ; If not 'q', continue looping
-    ;exit
-    ;move back to taxt mode
-    call IVT_return
-    mov ah, 00h
-    mov al, 03h
-    int 10h
-    mov ah, 4Ch                ; Terminate the program
-    int 21h                    ; DOS interrupt to exit
-main endp 
-
-
 GAME_START proc
-    ;set graphic mode
-    mov ah, 00h
-    mov al, 13h
-    int 10h
     ;reload game
     call background
     call game_frame
@@ -206,43 +144,6 @@ draw_num proc uses cx di ax dx
     pop location_x 
     ret
 draw_num endp
-
-;==================================================
-;This procedure reads the RTC seconds and update the seed
-;range of seed is: [0,89]
-;==================================================
-get_sec_RTC proc uses ax
-    xor ax,ax
-    mov al, 00h              ; Select RTC register for seconds
-    out 70h, al             ; Set RTC register address
-    in al, 71h              ; Read seconds value and store it in AL
-    mov seed,ax
-    ret
-get_sec_RTC endp
-
-;==================================================
-;This procedure randomize a color set of 5 colors.
-;and stores the number of the set in color_picker [0,120]
-;using LCG algorithem to to pick a random color set.
-;==================================================
-random_picker proc uses ax dx bx
-    ; Load seed  value into AX
-    mov ax, seed
-    ; a = 241, c = 7, m = 120
-    ; a-1 = 240 which is divisible by all prime factors of m (2,3,5)
-    ; c = 7 is relatively prime to m.(GCD(7,120)=1)
-    ; result = (241 * ax + 7) % 120
-    mov bx, 241
-    mul bx          ; DX:AX = AX * 241
-    add ax, 7       ; AX + 7
-    ; Apply modulo 120 (m = 120)
-    mov bx, 120
-    div bx          ; AX = AX / 120, DX = remainder
-    ; The result is in DX, the result is in range [0,119]
-    mov color_picker, dx
-    mov seed,dx
-    ret
-random_picker endp
 
 ;==================================================
 ;This procedure draws a line of 20 balls
@@ -433,5 +334,3 @@ get_currBall_nxtBall proc uses ax bx dx si
     mov next_ball,al
     ret
 get_currBall_nxtBall endp
-
-end main
