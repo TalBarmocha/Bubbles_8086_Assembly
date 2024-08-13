@@ -17,81 +17,84 @@ check_mouse proc uses ax bx cx dx
     int 33h
     test bx, 1          ; Check if the button is still pressed
     jnz wait_release    ; If pressed, wait for release
-
-    mov cx, mouse_x
-    mov dx, mouse_y
-    mov location_x, cx
-    mov location_y, dx
-    call draw_ball
+    ;hide cursor
+    mov ax, 2
+    int 33h
+    ;do function
+    call shoot
+    ;show cursor
+    mov ax, 1
+    int 33h
 
     no_click:
     ret
 check_mouse endp
 
+;==================================================
+;This procedure creates the shoot animation
+;==================================================
 shoot proc uses ax bx cx dx si di   
-    ; Calculate direction
-    mov ax, mouse_x
-    sub ax, player_x   
-    mov bx, player_y
-    sub bx, mouse_y
-    ; Normalize direction (simple approach)
-    cmp ax, 0
-    jge shoot_continue
-    neg ax          ;In case the difference is negative
-    shoot_continue:
-    add ax, bx
-    mov cx, ax  ; CX = |dx| + |dy|
-    ;SI = x step
-    mov ax, mouse_x
-    sub ax, player_x
-    mov dx, 2
-    imul dx
-    idiv cx
-    mov si, ax
-    ;DI = y step
-    mov ax, mouse_y
-    sub ax, player_y
-    mov dx, 2
-    imul dx  ; Adjust speed here
-    idiv cx
-    mov di, ax
-    shoot_loop:
-        ; Move ball
-        ;X in AX
-        mov ax, player_x
-        add ax, si
-        ;Y in DX
-        mov dx, player_y
-        add dx, di
-        
-        ;Check for Colision
-        call check_colision
-        cmp bh, 1d
-        je end_shoot
-        
-        ;erase current
-        call erase_current_ball
-        
-        ; Draw ball at new position
-        mov location_x, ax
-        mov location_y, dx     
-        call draw_ball
-        ;update player location
-        mov player_x, ax
-        mov player_y, dx 
-        ; Small delay
-        mov cx, 1000
-        delay_loop:
-            loop delay_loop
-    jmp shoot_loop
+    ; Load the initial position of the ball (player's position)
+    mov ax, init_player_x
+    mov bx, init_player_y
 
-    end_shoot:
-        ret
+    ; Calculate the direction (dx and dy)
+    ; dx = (mouse_x - init_player_x)
+    ; dy = (mouse_y - init_player_y)
+    mov cx, mouse_x
+    sub cx, init_player_x    ; cx = dx
+
+    mov dx, mouse_y
+    sub dx, init_player_y    ; dx = dy
+
+    ; Start the animation loop
+    AnimateBall:
+    ; Erase the current ball location
+    mov player_x, ax
+    mov player_y, bx
+    call erase_current_ball
+
+    ; Update ball position
+    add ax, cx  ; Update x-position (init_player_x + dx)
+    add bx, dx  ; Update y-position (init_player_y + dy)
+    
+    ; Check for collision
+    push ax
+    push bx
+    mov dx, bx
+    call check_colision
+    ; If a collision is detected, end the animation
+    ; Replace 'CollisionDetected' with the actual flag/register check
+    cmp bh, 1
+    je EndAnimation
+    pop bx
+    pop ax
+
+    ; Draw the ball in the new position
+    mov location_x, ax
+    mov location_y, bx
+    call draw_ball
+
+    ; Optional: Delay for the next frame
+    mov cx,1000d
+    delay:
+    loop delay
+
+    ; Loop to continue the animation
+    jmp AnimateBall
+
+    EndAnimation:
+    pop bx
+    pop ax
+    ; Animation ends
+    ret
 
 shoot endp
 
+;==================================================
 ; Input: AX = X coordinate, DX = Y coordinate
 ; Output: BH = 1 if there is colision and 0 if not (bool func)
+;==================================================
 check_colision proc uses di es si cx
     ; Load the base segment for video memory
     push ax
@@ -131,7 +134,7 @@ check_colision proc uses di es si cx
     mov bl, es:[di]   ; BL = color at (BX, DX)
     pop di
     cmp bl, background_color
-    jne end_shoot
+    jne end_colision_check
     push di
     add di, si
     add di, 11d
@@ -147,6 +150,10 @@ check_colision proc uses di es si cx
     ret
 check_colision endp
 
+;==================================================
+;This procedure earase the 12x12 pixels in location:
+;player_x and player_y
+;==================================================
 erase_current_ball proc uses ax es bx di si cx
     ; Load the base segment for video memory
     mov ax, 0A000h
@@ -162,7 +169,7 @@ erase_current_ball proc uses ax es bx di si cx
     add di, bx         ; DI = Y * 320 (64 + 256 = 320)
     add di, player_x   ; DI = Y * 320 + X
     ;row check
-    mov cx, 13d
+    mov cx, 12d
     col_erase:
         push cx
         mov cx, 12d
@@ -170,7 +177,7 @@ erase_current_ball proc uses ax es bx di si cx
         row_erase:
             push di
             add di, si
-            mov es:[di],background_color   ; BL = color at (BX, DX)
+            mov es:[di],background_color
             pop di
             inc si
         loop row_erase

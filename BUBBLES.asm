@@ -37,6 +37,7 @@ main proc
     mov ah, 00h
     mov al, 13h
     int 10h
+    RestartGame:
     call GAME_START
     ;init cursor
     mov ax, 0h
@@ -69,7 +70,10 @@ main proc
         mov next_ball, 0d
         mov location_x, 05d
         mov location_y, 05d
-        call GAME_START
+        ;hide cursor
+        mov ax, 2
+        int 33h
+        jmp RestartGame
     jmp main_loop
     ;exit
     exit:
