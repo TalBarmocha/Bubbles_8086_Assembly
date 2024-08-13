@@ -62,6 +62,8 @@ main proc
     cmp al, 'r'
     je restart
     jmp main_loop
+    
+    ;restart
     restart:
         mov score, 0d
         mov lifes, 5d
@@ -75,6 +77,7 @@ main proc
         int 33h
         jmp RestartGame
     jmp main_loop
+    
     ;exit
     exit:
     call IVT_return
