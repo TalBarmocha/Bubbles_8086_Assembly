@@ -4,7 +4,7 @@
 ;starting at location_x and location_y as the
 ;top left cornet of the number
 ;==================================================
-explosion proc bl cx
+explosion proc uses bl cx
     mov bl, 0
     animation_loop:
     call animation_frame
