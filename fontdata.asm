@@ -1,16 +1,3 @@
-restart_text DB 'Restart$'
-quit_text DB 'Quit$'
-
-; Define 8x8 font for characters used in "Restart" and "Quit"
-    font_R db 7Ch, 62h, 62h, 7Ch, 64h, 62h, 62h, 00h  ; R
-    font_e db 3Ch, 62h, 60h, 60h, 60h, 62h, 3Ch, 00h  ; e
-    font_s db 3Eh, 60h, 60h, 3Ch, 60h, 60h, 3Eh, 00h  ; s
-    font_t db 38h, 08h, 08h, 08h, 08h, 08h, 3Eh, 00h  ; t
-    font_a db 3Ch, 62h, 62h, 62h, 62h, 62h, 3Ch, 00h  ; a
-    font_r_samll db 3Ch, 62h, 62h, 7Ch, 60h, 62h, 3Ch, 00h  ; r
-    font_Q db 1Eh, 32h, 32h, 32h, 32h, 32h, 1Eh, 00h  ; Q
-    font_u db 3Eh, 62h, 62h, 62h, 62h, 62h, 3Eh, 00h  ; u
-    font_i db 3Ch, 60h, 60h, 60h, 60h, 60h, 3Ch, 00h  ; i
 
 ball DB 99,99,00,00,00,00,00,00,00,00,99,99
      DB 99,00,00,98,98,98,98,98,98,00,00,99
