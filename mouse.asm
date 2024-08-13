@@ -33,59 +33,66 @@ check_mouse endp
 ;==================================================
 ;This procedure creates the shoot animation
 ;==================================================
-shoot proc uses ax bx cx dx si di   
-    ; Load the initial position of the ball (player's position)
-    mov ax, init_player_x
-    mov bx, init_player_y
-
-    ; Calculate the direction (dx and dy)
-    ; dx = (mouse_x - init_player_x)
-    ; dy = (mouse_y - init_player_y)
-    mov cx, mouse_x
-    sub cx, init_player_x    ; cx = dx
-
-    mov dx, mouse_y
-    sub dx, init_player_y    ; dx = dy
-
-    ; Start the animation loop
-    AnimateBall:
-    ; Erase the current ball location
-    mov player_x, ax
-    mov player_y, bx
-    call erase_current_ball
-
-    ; Update ball position
-    add ax, cx  ; Update x-position (init_player_x + dx)
-    add bx, dx  ; Update y-position (init_player_y + dy)
+shoot proc uses ax bx cx dx   
+    ; Assume:
+    ; player_x and player_y contain the current ball position
+    ; dx_ball and dy_ball will store the movement values
     
-    ; Check for collision
-    push ax
-    push bx
-    mov dx, bx
-    call check_colision
-    ; If a collision is detected, end the animation
-    ; Replace 'CollisionDetected' with the actual flag/register check
-    cmp bh, 1
-    je EndAnimation
-    pop bx
-    pop ax
+    ;Calculate differences
+    mov ax, mouse_x
+    sub ax, player_x  ; AX = dx
+    mov bx, player_y
+    sub bx, mouse_y   ; BX = dy (note the reversal here)
 
-    ; Draw the ball in the new position
+    ; Get absolute value of dx
+    mov cx, ax
+    cmp cx, 0
+    jge abs_done
+    neg cx
+    abs_done:
+
+    ; Compare |dx| with dy to find the larger difference
+    cmp cx, bx
+    jge use_cx
+    mov cx, bx    ; If dy is larger, use it for normalization
+    use_cx:
+    ; CX = max{|dx|,|dy|}
+    
+    ; Set dy_ball to our constant upward speed
+    mov di, 2
+    
+    ; Calculate dx_ball
+    imul di       ; Multiply by step size
+    idiv cx       ; Divide by max difference
+    mov si, ax
+    
+    move_ball:
+
+    call erase_current_ball
+    
+    mov ax, player_x
+    add ax, si
     mov location_x, ax
-    mov location_y, bx
+    mov dx, player_y
+    sub dx, di
+    mov location_y, dx
+    
+    mov bl, current_ball
     call draw_ball
-
+    
+    ;update player location
+    mov player_x, ax
+    mov player_y, dx
+    
     ; Optional: Delay for the next frame
-    mov cx,1000d
+    mov cx,0FFFFh
     delay:
     loop delay
 
     ; Loop to continue the animation
-    jmp AnimateBall
-
+    jmp move_ball
+    
     EndAnimation:
-    pop bx
-    pop ax
     ; Animation ends
     ret
 
@@ -154,35 +161,32 @@ check_colision endp
 ;This procedure earase the 12x12 pixels in location:
 ;player_x and player_y
 ;==================================================
-erase_current_ball proc uses ax es bx di si cx
+erase_current_ball proc uses cx di ax dx
     ; Load the base segment for video memory
-    mov ax, 0A000h
-    mov es, ax
-    ; Calculate the offset: (Y * 320) + X
-    xor cx,cx
-    mov bx, player_y   ; BX = Y
-    mov cl, 6d
-    shl bx, cl         ; BX = Y * 64
-    mov di, bx         ; DI = BX
-    mov cl, 2d
-    shl bx, cl         ; BX = Y * 256
-    add di, bx         ; DI = Y * 320 (64 + 256 = 320)
-    add di, player_x   ; DI = Y * 320 + X
-    ;row check
-    mov cx, 12d
-    col_erase:
-        push cx
-        mov cx, 12d
-        mov si,0d
-        row_erase:
-            push di
-            add di, si
-            mov es:[di],background_color
-            pop di
-            inc si
-        loop row_erase
-        pop cx
-        add di, 320d
-    loop col_erase
+    xor di, di          ; Initialize di (result index)
+    mov cx, 12
+    push player_y
+    push player_x 
+    mov al, background_color         
+    erase_col:
+        push cx             ; Preserve cx (inner loop count)
+        push player_x
+        mov cx,12  
+        erase_row:
+            push cx
+            mov ah,0Ch
+            mov cx,player_x
+            mov dx,player_y
+            int 10h
+            pop cx
+            inc di                ; Move to next pixal in result matrix
+            inc player_x
+        loop erase_row
+        pop player_x
+        inc player_y
+        pop cx                  ; Restore cx (inner loop count)
+    loop erase_col
+    pop player_x 
+    pop player_y
     ret
 erase_current_ball endp
