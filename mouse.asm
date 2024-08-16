@@ -99,12 +99,10 @@ shoot proc uses ax bx cx dx
     call draw_ball
     
     ;update player location
-    cmp bh, 2
-    je skip_update
     mov player_x, ax
     mov player_y, dx
     
-    skip_update:
+    ;skip_update:
     ; Optional: Delay for the next frame
     mov cx,0FFFFh
     delay:
@@ -124,6 +122,7 @@ shoot endp
 ; Output: BH = 1 if there is colision and 0 if not (bool func)
 ;==================================================
 check_colision proc uses di es si cx
+    mov bh, 0
     cmp ax, 3      
     jbe out_of_range  
     cmp ax, 242    
@@ -134,62 +133,67 @@ check_colision proc uses di es si cx
     out_of_range:
     sub ax, si
     mov bh, 2
-    jmp end_colision_check
  
 
     end_wall_check:
-    mov bh, 1
     ; Load the base segment for video memory
-    ;push ax
-    ;mov ax, 0A000h
-    ;mov es, ax
-    ;pop ax
+    push ax
+    mov ax, 0A000h
+    mov es, ax
+    pop ax
     ; Calculate the offset: (Y * 320) + X
-    ;xor cx,cx
-    ;mov bx, dx        ; BX = Y
-    ;mov cl, 6d
-    ;shl bx, cl        ; BX = Y * 64
-    ;mov di, bx
-    ;mov cl, 2d        ; DI = BX
-    ;shl bx, cl        ; BX = Y * 256
-    ;add di, bx        ; DI = Y * 320 (64 + 256 = 320)
-    ;add di, ax        ; DI = Y * 320 + X
+    xor cx,cx
+    mov bx, dx        ; BX = Y
+    mov cl, 6d
+    shl bx, cl        ; BX = Y * 64
+    mov di, bx
+    mov cl, 2d        ; DI = BX
+    shl bx, cl        ; BX = Y * 256
+    add di, bx        ; DI = Y * 320 (64 + 256 = 320)
+    add di, ax        ; DI = Y * 320 + X
 
     ;row check
-    ;mov bh, 1d ;setting the default value to be a collision
     ;mov cx, 12d
     ;mov si, 0d
+    ;push di
     ;row_check:
-    ;push di
     ;add di, si
     ;mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;pop di
     ;cmp bl, background_color
-    ;jne end_colision_check
+    ;jne bubble_collision
     ;inc si
-    ;loop row_check
+    ;dec cx
+    ;cmp cx, 0
+    ;jae row_check
+    ;pop di
 
-    ; column check
+    ;column check
     ;mov cx, 12d
     ;mov si, 0d
-    ;col_check:
     ;push di
+    ;col_check:
     ;add di, si
     ;mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;pop di
     ;cmp bl, background_color
-    ;jne end_colision_check
-    ;push di
-    ;add di, si
+    ;jne bubble_collision
     ;add di, 11d
     ;mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;pop di
     ;cmp bl, background_color
-    ;jne end_colision_check
+    ;jne bubble_collision
     ;add si,320d
-    ;loop col_check
+    ;dec cx
+    ;cmp cx, 0
+    ;jae col_check
+    ;pop di
 
-    mov bh, 0d ;if the proc got here then there is no colision
+    cmp bh, 2
+    je end_colision_check
+    cmp bh, 0
+    je end_colision_check
+
+    bubble_collision:
+    mov bh, 1
+
     end_colision_check:
     ret
 check_colision endp
