@@ -81,7 +81,7 @@ shoot proc uses ax bx cx dx
     sub dx, di
     
     ;check collision
-    call check_colision
+    call check_collision
     cmp bh, 2
     jne no_wall_collision
     neg si  ; Reverse direction if collision detected
@@ -117,9 +117,9 @@ shoot endp
 
 ;==================================================
 ; Input: AX = X coordinate, DX = Y coordinate
-; Output: BH = 1 if there is colision with bubles and 2 if there is collision with wall 0 if not (bool func)
+; Output: BH = 1 if there is collision with bubles and 2 if there is collision with wall 0 if not (bool func)
 ;==================================================
-check_colision proc uses di es si cx
+check_collision proc uses di es si cx
     mov bh, 0
     cmp ax, 3      
     jbe out_of_range  
@@ -187,14 +187,14 @@ check_colision proc uses di es si cx
     
 
     cmp bh, 1
-    jne end_colision_check
+    jne end_collision_check
 
     bubble_collision:
     mov bh, 1
 
-    end_colision_check:
+    end_collision_check:
     ret
-check_colision endp
+check_collision endp
 
 ;==================================================
 ;This procedure earase the 12x12 pixels in location:
