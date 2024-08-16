@@ -4,7 +4,7 @@
 ;starting at location_x and location_y as the
 ;top left cornet of the number
 ;==================================================
-explosion proc uses bl cx
+explosion_func proc uses bx cx
     mov bl, 0
     animation_loop:
     call animation_frame
@@ -18,7 +18,7 @@ explosion proc uses bl cx
     cmp bl,6
     jb animation_loop
     ret
-explosion endp
+explosion_func endp
 
 ;==================================================
 ;This procedure draw a 12x12 frame of explotion
