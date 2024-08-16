@@ -102,7 +102,6 @@ shoot proc uses ax bx cx dx
     mov player_x, ax
     mov player_y, dx
     
-    ;skip_update:
     ; Optional: Delay for the next frame
     mov cx,0FFFFh
     delay:
@@ -125,7 +124,7 @@ check_colision proc uses di es si cx
     mov bh, 0
     cmp ax, 3      
     jbe out_of_range  
-    cmp ax, 242    
+    cmp ax, 234   
     jae out_of_range 
 
     jmp end_wall_check
@@ -137,6 +136,7 @@ check_colision proc uses di es si cx
 
     end_wall_check:
     ; Load the base segment for video memory
+    push bx
     push ax
     mov ax, 0A000h
     mov es, ax
@@ -151,40 +151,41 @@ check_colision proc uses di es si cx
     shl bx, cl        ; BX = Y * 256
     add di, bx        ; DI = Y * 320 (64 + 256 = 320)
     add di, ax        ; DI = Y * 320 + X
+    pop bx
 
     ;row check
-    ;mov cx, 12d
-    ;mov si, 0d
-    ;push di
-    ;row_check:
-    ;add di, si
-    ;mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;cmp bl, background_color
-    ;jne bubble_collision
-    ;inc si
-    ;dec cx
-    ;cmp cx, 0
-    ;jae row_check
-    ;pop di
+    push si
+    mov cx, 12d
+    mov si, 0d
+    row_check:
+        push di
+        add di, si
+        mov bl, es:[di]   ; BL = color at (BX, DX)
+        pop di
+        cmp bl, background_color
+        jne bubble_collision
+        inc si
+    loop row_check
+    pop si
 
-    ;column check
-    ;mov cx, 12d
-    ;mov si, 0d
-    ;push di
-    ;col_check:
-    ;add di, si
-    ;mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;cmp bl, background_color
-    ;jne bubble_collision
-    ;add di, 11d
-    ;mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;cmp bl, background_color
-    ;jne bubble_collision
-    ;add si,320d
-    ;dec cx
-    ;cmp cx, 0
-    ;jae col_check
-    ;pop di
+    
+    ; column check
+    cmp si, 0
+    jb right_col_check
+    add di, 11 
+    right_col_check:
+    mov cx, 12d
+    mov si, 0d
+    col_check:
+        push di
+        add di, si
+        mov bl, es:[di]   ; BL = color at (BX, DX)
+        pop di
+        cmp bl, background_color
+        jne bubble_collision
+        add si,320d
+    loop col_check
+    
 
     cmp bh, 2
     je end_colision_check
