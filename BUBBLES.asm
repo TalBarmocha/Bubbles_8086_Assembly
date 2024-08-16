@@ -65,6 +65,12 @@ main proc
     
     ;restart
     restart:
+        xor ax, ax
+        xor bx, bx
+        xor cx, cx
+        xor dx, dx
+        xor di, di
+        xor si, si
         mov score, 0d
         mov lifes, 5d
         mov color_picker, 0d
