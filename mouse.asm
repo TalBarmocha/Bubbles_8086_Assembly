@@ -17,6 +17,13 @@ check_mouse proc uses ax bx cx dx
     int 33h
     test bx, 1          ; Check if the button is still pressed
     jnz wait_release    ; If pressed, wait for release
+
+    ; Check bounds (assuming 320x200 resolution)
+    cmp mouse_x, 3      
+    jbe no_click  
+    cmp mouse_x, 242    
+    jae no_click 
+
     ;hide cursor
     mov ax, 2
     int 33h
@@ -59,31 +66,45 @@ shoot proc uses ax bx cx dx
     ; CX = max{|dx|,|dy|}
     
     ; Set dy_ball to our constant upward speed
-    mov di, 2
+    mov di, 1
     
     ; Calculate dx_ball
     imul di       ; Multiply by step size
     idiv cx       ; Divide by max difference
     mov si, ax
     
-    move_ball:
 
-    call erase_current_ball
-    
+    move_ball:
     mov ax, player_x
     add ax, si
-    mov location_x, ax
     mov dx, player_y
     sub dx, di
+    
+    ;check collision
+    call check_colision
+    cmp bh, 2
+    jne no_wall_collision
+    neg si  ; Reverse direction if collision detected
+
+    
+    no_wall_collision:
+    cmp bh, 1
+    je EndAnimation
+    mov location_x, ax
     mov location_y, dx
     
+    call erase_current_ball
+
     mov bl, current_ball
     call draw_ball
     
     ;update player location
+    cmp bh, 2
+    je skip_update
     mov player_x, ax
     mov player_y, dx
     
+    skip_update:
     ; Optional: Delay for the next frame
     mov cx,0FFFFh
     delay:
@@ -103,54 +124,70 @@ shoot endp
 ; Output: BH = 1 if there is colision and 0 if not (bool func)
 ;==================================================
 check_colision proc uses di es si cx
+    cmp ax, 3      
+    jbe out_of_range  
+    cmp ax, 242    
+    jae out_of_range 
+
+    jmp end_wall_check
+
+    out_of_range:
+    sub ax, si
+    mov bh, 2
+    jmp end_colision_check
+ 
+
+    end_wall_check:
+    mov bh, 1
     ; Load the base segment for video memory
-    push ax
-    mov ax, 0A000h
-    mov es, ax
-    pop ax
+    ;push ax
+    ;mov ax, 0A000h
+    ;mov es, ax
+    ;pop ax
     ; Calculate the offset: (Y * 320) + X
-    xor cx,cx
-    mov bx, dx        ; BX = Y
-    mov cl, 6d
-    shl bx, cl        ; BX = Y * 64
-    mov di, bx
-    mov cl, 2d         ; DI = BX
-    shl bx, cl        ; BX = Y * 256
-    add di, bx        ; DI = Y * 320 (64 + 256 = 320)
-    add di, ax        ; DI = Y * 320 + X
+    ;xor cx,cx
+    ;mov bx, dx        ; BX = Y
+    ;mov cl, 6d
+    ;shl bx, cl        ; BX = Y * 64
+    ;mov di, bx
+    ;mov cl, 2d        ; DI = BX
+    ;shl bx, cl        ; BX = Y * 256
+    ;add di, bx        ; DI = Y * 320 (64 + 256 = 320)
+    ;add di, ax        ; DI = Y * 320 + X
+
     ;row check
-    mov bh, 1d ;setting the default value to be a colision.
-    mov cx, 12d
-    mov si, 0d
-    row_check:
-    push di
-    add di, si
-    mov bl, es:[di]   ; BL = color at (BX, DX)
-    pop di
-    cmp bl, background_color
-    jne end_colision_check
-    inc si
-    loop row_check
+    ;mov bh, 1d ;setting the default value to be a collision
+    ;mov cx, 12d
+    ;mov si, 0d
+    ;row_check:
+    ;push di
+    ;add di, si
+    ;mov bl, es:[di]   ; BL = color at (BX, DX)
+    ;pop di
+    ;cmp bl, background_color
+    ;jne end_colision_check
+    ;inc si
+    ;loop row_check
 
     ; column check
-    mov cx, 12d
-    mov si, 0d
-    col_check:
-    push di
-    add di, si
-    mov bl, es:[di]   ; BL = color at (BX, DX)
-    pop di
-    cmp bl, background_color
-    jne end_colision_check
-    push di
-    add di, si
-    add di, 11d
-    mov bl, es:[di]   ; BL = color at (BX, DX)
-    pop di
-    cmp bl, background_color
-    jne end_colision_check
-    add si,320d
-    loop col_check
+    ;mov cx, 12d
+    ;mov si, 0d
+    ;col_check:
+    ;push di
+    ;add di, si
+    ;mov bl, es:[di]   ; BL = color at (BX, DX)
+    ;pop di
+    ;cmp bl, background_color
+    ;jne end_colision_check
+    ;push di
+    ;add di, si
+    ;add di, 11d
+    ;mov bl, es:[di]   ; BL = color at (BX, DX)
+    ;pop di
+    ;cmp bl, background_color
+    ;jne end_colision_check
+    ;add si,320d
+    ;loop col_check
 
     mov bh, 0d ;if the proc got here then there is no colision
     end_colision_check:
