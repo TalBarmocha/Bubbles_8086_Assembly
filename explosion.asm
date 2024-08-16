@@ -11,7 +11,7 @@ explosion proc uses bl cx
     inc bl
 
     ;add delay
-    mov cx,0FFFFh
+    mov cx,00FFFh
     animation_delay:
     loop animation_delay
     
