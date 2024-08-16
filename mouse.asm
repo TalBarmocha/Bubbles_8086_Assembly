@@ -85,11 +85,10 @@ shoot proc uses ax bx cx dx
     cmp bh, 2
     jne no_wall_collision
     neg si  ; Reverse direction if collision detected
-
-    
+ 
     no_wall_collision:
     cmp bh, 1
-    je EndAnimation
+    je end_anim
     mov location_x, ax
     mov location_y, dx
     
@@ -110,7 +109,7 @@ shoot proc uses ax bx cx dx
     ; Loop to continue the animation
     jmp move_ball
     
-    EndAnimation:
+    end_anim:
     ; Animation ends
     ret
 
@@ -118,7 +117,7 @@ shoot endp
 
 ;==================================================
 ; Input: AX = X coordinate, DX = Y coordinate
-; Output: BH = 1 if there is colision and 0 if not (bool func)
+; Output: BH = 1 if there is colision with bubles and 2 if there is collision with wall 0 if not (bool func)
 ;==================================================
 check_colision proc uses di es si cx
     mov bh, 0
@@ -187,10 +186,8 @@ check_colision proc uses di es si cx
     loop col_check
     
 
-    cmp bh, 2
-    je end_colision_check
-    cmp bh, 0
-    je end_colision_check
+    cmp bh, 1
+    jne end_colision_check
 
     bubble_collision:
     mov bh, 1
