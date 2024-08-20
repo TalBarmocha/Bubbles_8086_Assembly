@@ -40,14 +40,15 @@ check_mouse endp
 ;==================================================
 ;This procedure creates the shoot animation
 ;==================================================
-shoot proc uses ax bx cx dx   
+shoot proc uses ax bx cx dx si di
     ; Assume:
     ; player_x and player_y contain the current ball position
-    ; dx_ball and dy_ball will store the movement values
+    ; mouse_x and mouse_y contain the mouse target position
     
     ;Calculate differences
     mov ax, mouse_x
     sub ax, player_x  ; AX = dx
+    ;player_y >= mouse_y for evert y.
     mov bx, player_y
     sub bx, mouse_y   ; BX = dy (note the reversal here)
 
@@ -65,14 +66,14 @@ shoot proc uses ax bx cx dx
     use_cx:
     ; CX = max{|dx|,|dy|}
     
-    ; Set dy_ball to our constant upward speed
+    ; Set dy step of the player to our constant upward speed
     mov di, 1
-    
-    ; Calculate dx_ball
+    ; Calculate dx step of the player
+    push ax
     imul di       ; Multiply by step size
     idiv cx       ; Divide by max difference
     mov si, ax
-    
+    pop ax
 
     move_ball:
     mov ax, player_x
@@ -102,7 +103,7 @@ shoot proc uses ax bx cx dx
     mov player_y, dx
     
     ; Optional: Delay for the next frame
-    mov cx,0FFFFh
+    mov cx,0AFFFh
     delay:
     loop delay
 
@@ -135,62 +136,62 @@ check_collision proc uses di es si cx
 
     end_wall_check:
     ; Load the base segment for video memory
-    push bx
-    push ax
-    mov ax, 0A000h
-    mov es, ax
-    pop ax
+    ;push bx
+    ;push ax
+    ;mov ax, 0A000h
+    ;mov es, ax
+    ;pop ax
     ; Calculate the offset: (Y * 320) + X
-    xor cx,cx
-    mov bx, dx        ; BX = Y
-    mov cl, 6d
-    shl bx, cl        ; BX = Y * 64
-    mov di, bx
-    mov cl, 2d        ; DI = BX
-    shl bx, cl        ; BX = Y * 256
-    add di, bx        ; DI = Y * 320 (64 + 256 = 320)
-    add di, ax        ; DI = Y * 320 + X
-    pop bx
+    ;xor cx,cx
+    ;mov bx, dx        ; BX = Y
+    ;mov cl, 6d
+    ;shl bx, cl        ; BX = Y * 64
+    ;mov di, bx
+    ;mov cl, 2d        ; DI = BX
+    ;shl bx, cl        ; BX = Y * 256
+    ;add di, bx        ; DI = Y * 320 (64 + 256 = 320)
+    ;add di, ax        ; DI = Y * 320 + X
+    ;pop bx
 
     ;row check
-    push si
-    mov cx, 12d
-    mov si, 0d
-    row_check:
-        push di
-        add di, si
-        mov bl, es:[di]   ; BL = color at (BX, DX)
-        pop di
-        cmp bl, background_color
-        jne bubble_collision
-        inc si
-    loop row_check
-    pop si
+    ;push si
+    ;mov cx, 12d
+    ;mov si, 0d
+    ;row_check:
+    ;    push di
+    ;    add di, si
+    ;    mov bl, es:[di]   ; BL = color at (BX, DX)
+    ;    pop di
+    ;    cmp bl, background_color
+    ;    jne bubble_collision
+    ;    inc si
+    ;loop row_check
+    ;pop si
 
     
     ; column check
-    cmp si, 0
-    jb right_col_check
-    add di, 11 
-    right_col_check:
-    mov cx, 12d
-    mov si, 0d
-    col_check:
-        push di
-        add di, si
-        mov bl, es:[di]   ; BL = color at (BX, DX)
-        pop di
-        cmp bl, background_color
-        jne bubble_collision
-        add si,320d
-    loop col_check
+    ;cmp si, 0
+    ;jb right_col_check
+    ;add di, 11 
+    ;right_col_check:
+    ;mov cx, 12d
+    ;mov si, 0d
+    ;col_check:
+    ;    push di
+    ;    add di, si
+    ;    mov bl, es:[di]   ; BL = color at (BX, DX)
+    ;    pop di
+    ;    cmp bl, background_color
+    ;    jne bubble_collision
+    ;    add si,320d
+    ;loop col_check
     
 
-    cmp bh, 1
-    jne end_collision_check
+    ;cmp bh, 1
+    ;jne end_collision_check
 
-    bubble_collision:
-    mov bh, 1
+    ;bubble_collision:
+    ;mov bh, 1
 
     end_collision_check:
     ret
