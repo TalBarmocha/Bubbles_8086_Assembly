@@ -66,20 +66,35 @@ shoot proc uses ax bx cx dx si di
     use_cx:
     ; CX = max{|dx|,|dy|}
     
-    ; Set dy step of the player to our constant upward speed
-    mov di, 1
-    ; Calculate dx step of the player
+    ; Normalize dx and dy to produce fractional steps
+    ; Calculate si = dx * 256 / max{|dx|, |dy|}
+    ; Calculate di = dy * 256 / max{|dx|, |dy|}
+    mov di, 256  ; formatting to 8.8 float foramt
+    
+    ; Calculate dx step
     push ax
-    imul di       ; Multiply by step size
-    idiv cx       ; Divide by max difference
-    mov si, ax
+    imul di    ; dx * 256
+    idiv cx    ; dx_step = (dx * 256) / max_diff
+    mov si, ax ; Save the dx step
+    pop ax
+
+    ; Calculate dy step
+    push ax
+    imul di    ; dy * 256
+    idiv cx    ; dy_step = (dy * 256) / max_diff
+    mov di, ax ; Save the dy step
     pop ax
 
     move_ball:
+    mov cl, 8
     mov ax, player_x
+    shl ax, cl
     add ax, si
+    shr ax, cl
     mov dx, player_y
+    shl dx, cl
     sub dx, di
+    shr dx, cl
     
     ;check collision
     call check_collision
