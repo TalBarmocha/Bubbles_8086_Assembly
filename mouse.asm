@@ -29,6 +29,19 @@ check_mouse proc uses ax bx cx dx
     int 33h
     ;do function
     call shoot
+    call get_currBall_nxtBall
+    ;Draw Player
+    mov location_x, init_player_x
+    mov location_y, init_player_y
+    mov bl,current_ball
+    call draw_ball
+    ;Draw Next Ball
+    mov location_x, 05d
+    mov location_y, 180d
+    mov bl,next_ball
+    call draw_ball
+    mov player_x, init_player_x
+    mov player_y, init_player_y
     ;show cursor
     mov ax, 1
     int 33h
@@ -72,72 +85,84 @@ shoot proc uses ax bx cx dx si di
     mov di, 256  ; formatting to 8.8 float foramt
     
     ; Calculate dx step
-    push ax
     imul di    ; dx * 256
     idiv cx    ; dx_step = (dx * 256) / max_diff
     mov si, ax ; Save the dx step
-    pop ax
 
     ; Calculate dy step
-    push ax
+    mov ax, bx
     imul di    ; dy * 256
     idiv cx    ; dy_step = (dy * 256) / max_diff
     mov di, ax ; Save the dy step
-    pop ax
 
-    move_ball:
+    ;foramting to 8.8 AX and DX
     mov cl, 8
     mov ax, player_x
     shl ax, cl
-    add ax, si
-    shr ax, cl
     mov dx, player_y
     shl dx, cl
+    mov player_x, ax
+    mov player_y, dx
+
+    move_ball:
+    mov ax, player_x
+    add ax, si
+    mov dx, player_y
     sub dx, di
-    shr dx, cl
+    ;AX = player_x + dx foramt 8.8
+    ;DX = player_y + dy foramt 8.8
     
     ;check collision
+    push ax
+    push dx
+    ;convert to normal
+    mov cl, 8
+    shr ax, cl
+    shr dx, cl
+    ;check collision
     call check_collision
-    cmp bh, 2
-    jne no_wall_collision
+    cmp colli_stat, 2
+    jne no_wall_colli
     neg si  ; Reverse direction if collision detected
  
-    no_wall_collision:
-    cmp bh, 1
+    no_wall_colli:
+    cmp colli_stat, 1
     je end_anim
-    mov location_x, ax
-    mov location_y, dx
-    
     call erase_current_ball
 
+    mov location_x, ax
+    mov location_y, dx
     mov bl, current_ball
     call draw_ball
     
+    pop dx
+    pop ax
     ;update player location
     mov player_x, ax
     mov player_y, dx
-    
+
     ; Optional: Delay for the next frame
-    mov cx,0AFFFh
+    mov cx,07FFFh
     delay:
     loop delay
-
+    
     ; Loop to continue the animation
     jmp move_ball
     
     end_anim:
     ; Animation ends
+    pop dx
+    pop ax
     ret
-
 shoot endp
 
 ;==================================================
 ; Input: AX = X coordinate, DX = Y coordinate
-; Output: BH = 1 if there is collision with bubles and 2 if there is collision with wall 0 if not (bool func)
+; Output: colli_stat = 1 if there is collision with bubles and 2 if there is collision with wall 0 if not (bool func)
 ;==================================================
 check_collision proc uses di es si cx
-    mov bh, 0
-    cmp ax, 3      
+    mov colli_stat, 0
+    cmp ax, 4      
     jbe out_of_range  
     cmp ax, 234   
     jae out_of_range 
@@ -145,70 +170,90 @@ check_collision proc uses di es si cx
     jmp end_wall_check
 
     out_of_range:
-    sub ax, si
-    mov bh, 2
+    mov colli_stat, 2
+    jmp wall_end
  
 
     end_wall_check:
     ; Load the base segment for video memory
-    ;push bx
-    ;push ax
-    ;mov ax, 0A000h
-    ;mov es, ax
-    ;pop ax
+    push bx
+    mov bx, 0A000h
+    mov es, bx
     ; Calculate the offset: (Y * 320) + X
-    ;xor cx,cx
-    ;mov bx, dx        ; BX = Y
-    ;mov cl, 6d
-    ;shl bx, cl        ; BX = Y * 64
-    ;mov di, bx
-    ;mov cl, 2d        ; DI = BX
-    ;shl bx, cl        ; BX = Y * 256
-    ;add di, bx        ; DI = Y * 320 (64 + 256 = 320)
-    ;add di, ax        ; DI = Y * 320 + X
-    ;pop bx
+    push di
+    xor cx,cx
+    mov bx, dx        ; BX = Y
+    mov cl, 6d
+    shl bx, cl        ; BX = Y * 64
+    mov di, bx
+    mov cl, 2d        ; DI = BX
+    shl bx, cl        ; BX = Y * 256
+    add di, bx        ; DI = Y * 320 (64 + 256 = 320)
+    add di, ax        ; DI = Y * 320 + X
+    mov space_point, di
+    pop di
+    pop bx
 
+    ; save DX and AX 
+    push ax
+    push dx
+    mov cl, 8d
+    mov si, player_x
+    shr si, cl
+    sub ax, si
+    mov di, player_y
+    shr di, cl
+    sub di, dx
+    mov dx, di
+    ;result: 
+    ;ax = number of pixels moved in X axis
+    ;dx = number of pixels moved in Y axis
+    mov di, space_point
     ;row check
-    ;push si
-    ;mov cx, 12d
-    ;mov si, 0d
-    ;row_check:
-    ;    push di
-    ;    add di, si
-    ;    mov bl, es:[di]   ; BL = color at (BX, DX)
-    ;    pop di
-    ;    cmp bl, background_color
-    ;    jne bubble_collision
-    ;    inc si
-    ;loop row_check
-    ;pop si
+    cmp dx, 0
+    je colchck
+    mov cx, 12d
+    xor si, si
+    row_check:
+        push di
+        add di, si
+        mov bl, es:[di]   ; BL = color at (AX, DX)
+        pop di
+        cmp bl, background_color
+        jne bubble_collision
+        inc si
+    loop row_check
 
-    
+    colchck:
     ; column check
-    ;cmp si, 0
-    ;jb right_col_check
-    ;add di, 11 
-    ;right_col_check:
+    ;cmp ax, 0
+    ;je end_colli_chck
+    ;jb left_col_check
+    ;add di, 11
+    ;left_col_check:
     ;mov cx, 12d
-    ;mov si, 0d
+    ;xor si,si
     ;col_check:
     ;    push di
     ;    add di, si
-    ;    mov bl, es:[di]   ; BL = color at (BX, DX)
+    ;    mov bl, es:[di]   ; BL = color at (AX, DX)
     ;    pop di
     ;    cmp bl, background_color
     ;    jne bubble_collision
-    ;    add si,320d
+    ;    add si, 320d
     ;loop col_check
     
 
-    ;cmp bh, 1
-    ;jne end_collision_check
+    cmp colli_stat, 1
+    jne end_colli_chck
 
-    ;bubble_collision:
-    ;mov bh, 1
+    bubble_collision:
+    mov colli_stat, 1
 
-    end_collision_check:
+    end_colli_chck:
+    pop dx
+    pop ax
+    wall_end:
     ret
 check_collision endp
 
@@ -218,10 +263,17 @@ check_collision endp
 ;==================================================
 erase_current_ball proc uses cx di ax dx
     ; Load the base segment for video memory
+    push player_y
+    push player_x
+    mov cl, 8
+    mov ax, player_x
+    mov dx, player_y
+    shr ax ,cl
+    shr dx ,cl
+    mov player_x ,ax
+    mov player_y ,dx
     xor di, di          ; Initialize di (result index)
     mov cx, 12
-    push player_y
-    push player_x 
     mov al, background_color         
     erase_col:
         push cx             ; Preserve cx (inner loop count)
@@ -229,7 +281,7 @@ erase_current_ball proc uses cx di ax dx
         mov cx,12  
         erase_row:
             push cx
-            mov ah,0Ch
+            mov ah,0Ch 
             mov cx,player_x
             mov dx,player_y
             int 10h

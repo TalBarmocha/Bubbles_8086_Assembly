@@ -8,7 +8,9 @@ include colors.asm
 ;include manu.asm
 location_x DW 05d
 location_y DW 05d
+colli_stat DB 0d
 background_color equ 100d
+space_point DW 0d
 ;Balls:
 color_picker DW 0d
 current_ball DB 0d
@@ -63,7 +65,6 @@ main proc
     cmp al, 'r'
     je restart
     jmp main_loop
-    
     ;restart
     restart:
         xor ax, ax
@@ -79,10 +80,13 @@ main proc
         mov next_ball, 0d
         mov location_x, 05d
         mov location_y, 05d
+        mov player_x, init_player_x
+        mov player_y, init_player_y
         ;hide cursor
         mov ax, 2
         int 33h
         jmp RestartGame
+
     jmp main_loop
     
     ;exit
