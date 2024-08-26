@@ -18,19 +18,20 @@ GAME_START proc
     mov bl,current_ball
     call draw_ball
     ;Draw Next Ball
-    mov location_x, 05d
-    mov location_y, 180d
+    mov location_x, 278d
+    mov location_y, 100d
     mov bl,next_ball
     call draw_ball
     ;Draw lifes:
     mov cl,lifes
     mov bl,27d ;light gray
-    mov location_x, 19d
-    mov location_y, 180d
+    mov location_x, 278d
+    mov location_y, 114d
     print_lifes:
         call draw_ball
-        add location_x,14d
+        add location_y,14d
     loop print_lifes
+    call draw_limit_line
     ret
 GAME_START endp
 
@@ -333,3 +334,34 @@ get_currBall_nxtBall proc uses ax bx dx si
     mov next_ball,al
     ret
 get_currBall_nxtBall endp
+
+;==================================================
+;This procedure prints the limit line of the game
+;==================================================
+draw_limit_line proc uses ax cx dx si di
+    ;y = 173, x = 4
+    xor di,di
+    mov ax, 0A000h
+    mov es, ax
+    mov di, 173d
+    mov cx, 6d
+    shl di, cl
+    mov si, di
+    mov cl, 2d
+    shl di, cl
+    add di, si
+    add di, 4
+    mov cx, 242
+    limit_line:
+    mov al, 78d
+    mov es:[di], ax
+    inc di
+    loop limit_line
+    ;fix last pixel
+    mov al, 0d
+    mov ah, 0Ch
+    mov cx, 246d
+    mov dx, 173d
+    int 10h
+    ret
+draw_limit_line endp

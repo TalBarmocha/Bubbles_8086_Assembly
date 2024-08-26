@@ -36,12 +36,15 @@ check_mouse proc uses ax bx cx dx
     mov bl,current_ball
     call draw_ball
     ;Draw Next Ball
-    mov location_x, 05d
-    mov location_y, 180d
+    mov location_x, 278d
+    mov location_y, 100d
     mov bl,next_ball
     call draw_ball
+    ;reset player_x and player_y location
     mov player_x, init_player_x
     mov player_y, init_player_y
+    ;draw limit line
+    call draw_limit_line
     ;show cursor
     mov ax, 1
     int 33h
@@ -219,8 +222,8 @@ check_collision proc uses di es si cx
         add di, si
         mov bl, es:[di]   ; BL = color at (AX, DX)
         pop di
-        cmp bl, background_color
-        jne bubble_collision
+        cmp bl, 48d
+        jbe bubble_collision
         inc si
     loop row_check
 
