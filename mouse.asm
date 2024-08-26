@@ -21,8 +21,10 @@ check_mouse proc uses ax bx cx dx
     ; Check bounds (assuming 320x200 resolution)
     cmp mouse_x, 3      
     jbe no_click  
-    cmp mouse_x, 242    
-    jae no_click 
+    cmp mouse_x, 243    
+    jae no_click
+    cmp mouse_y, 173
+    jae no_click
 
     ;hide cursor
     mov ax, 2
@@ -43,8 +45,6 @@ check_mouse proc uses ax bx cx dx
     ;reset player_x and player_y location
     mov player_x, init_player_x
     mov player_y, init_player_y
-    ;draw limit line
-    call draw_limit_line
     ;show cursor
     mov ax, 1
     int 33h
@@ -60,7 +60,7 @@ shoot proc uses ax bx cx dx si di
     ; Assume:
     ; player_x and player_y contain the current ball position
     ; mouse_x and mouse_y contain the mouse target position
-    
+
     ;Calculate differences
     mov ax, mouse_x
     sub ax, player_x  ; AX = dx
@@ -132,12 +132,14 @@ shoot proc uses ax bx cx dx si di
     cmp colli_stat, 1
     je end_anim
     call erase_current_ball
-
+    cmp dx, 161d
+    jb no_line_need
+    call draw_limit_line
+    no_line_need:
     mov location_x, ax
     mov location_y, dx
     mov bl, current_ball
     call draw_ball
-    
     pop dx
     pop ax
     ;update player location
