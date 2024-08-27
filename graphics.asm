@@ -4,11 +4,12 @@ GAME_START proc
     call game_frame
     call print_score
     ;draw initial ball lines
-    mov cx,7d
+    mov cx,6d
     call get_sec_RTC
+    call draw_balls_line
     game_lines:
+        call shift_visual
         call draw_balls_line
-        add location_y,12d
     loop game_lines
     ;draw player, lives and next ball
     call get_currBall_nxtBall
@@ -148,7 +149,9 @@ draw_num endp
 ;==================================================
 ;This procedure draws a line of 20 balls
 ;==================================================
-draw_balls_line proc uses bx cx dx si di
+draw_balls_line proc uses ax bx cx dx si di
+    call shift_line_grid
+    xor ax, ax
     push location_x
     mov cx, 4d
     balls_line:
@@ -164,6 +167,12 @@ draw_balls_line proc uses bx cx dx si di
         draw_color_set:
         push bx
         mov al,[bx+di]
+        ;update grid
+        xor bx,bx
+        mov bl,ah
+        mov bubble_grid[bx],al
+        inc ah
+        ;draw ball
         mov bl,al
         call draw_ball
         pop bx
@@ -343,14 +352,7 @@ draw_limit_line proc uses ax cx dx si di
     xor di,di
     mov ax, 0A000h
     mov es, ax
-    mov di, 173d
-    mov cx, 6d
-    shl di, cl
-    mov si, di
-    mov cl, 2d
-    shl di, cl
-    add di, si
-    add di, 4
+    mov di, 55364
     mov cx, 242
     limit_line:
     mov al, 78d
@@ -365,3 +367,27 @@ draw_limit_line proc uses ax cx dx si di
     int 10h
     ret
 draw_limit_line endp
+
+shift_visual proc uses es si di ax bx cx dx
+    ;5 < y < 161, 5< x < 245 ; move 3840 pixel to shift 12 lines down
+    ;start pixel 51765
+    mov ax, 0A000h
+    mov es, ax
+    mov si, 3840d
+    mov cx, 157d
+    mov bx, 51765d
+    y_down_loop:
+        push cx
+        mov cx, 243d
+        shift_down:
+            mov di, si
+            add di, bx
+            mov dl, es:[bx]
+            mov es:[di],dl
+            dec bx
+        loop shift_down
+        sub bx, 77
+        pop cx
+    loop y_down_loop
+    ret
+shift_visual endp

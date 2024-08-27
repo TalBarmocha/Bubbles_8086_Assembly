@@ -19,9 +19,9 @@ check_mouse proc uses ax bx cx dx
     jnz wait_release    ; If pressed, wait for release
 
     ; Check bounds (assuming 320x200 resolution)
-    cmp mouse_x, 3      
+    cmp mouse_x, 5      
     jbe no_click  
-    cmp mouse_x, 243    
+    cmp mouse_x, 245    
     jae no_click
     cmp mouse_y, 173
     jae no_click

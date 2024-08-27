@@ -32,6 +32,7 @@ include graphics.asm
 include time.asm
 include random.asm
 include explo.asm
+include database.asm
 main proc
     mov ax, @data               ; Load data segment address into AX
     mov ds, ax                  ; Move data segment address to DS

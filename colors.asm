@@ -147,3 +147,6 @@ color_addresses DW offset color1, offset color2, offset color3, offset color4, o
                 DW offset color106, offset color107, offset color108, offset color109, offset color110
                 DW offset color111, offset color112, offset color113, offset color114, offset color115
                 DW offset color116, offset color117, offset color118, offset color119, offset color120
+
+
+bubble_grid DB 280 DUP(0) ; 20 columns * 14 rows
