@@ -217,7 +217,8 @@ check_collision proc uses di es si cx
     ;row check
     cmp dx, 0
     je colchck
-    mov cx, 12d
+    add di, 2d
+    mov cx, 8d
     xor si, si
     row_check:
         push di
@@ -228,25 +229,27 @@ check_collision proc uses di es si cx
         jbe bubble_collision
         inc si
     loop row_check
-
+    
+    mov di, space_point
     colchck:
     ; column check
-    ;cmp ax, 0
-    ;je end_colli_chck
-    ;jb left_col_check
-    ;add di, 11
-    ;left_col_check:
-    ;mov cx, 12d
-    ;xor si,si
-    ;col_check:
-    ;    push di
-    ;    add di, si
-    ;    mov bl, es:[di]   ; BL = color at (AX, DX)
-    ;    pop di
-    ;    cmp bl, background_color
-    ;    jne bubble_collision
-    ;    add si, 320d
-    ;loop col_check
+    cmp ax, 0
+    je end_colli_chck
+    jl left_col_check
+    add di, 11
+    left_col_check:
+    add di, 640d
+    mov cx, 8d
+    xor si,si
+    col_check:
+        push di
+        add di, si
+        mov bl, es:[di]   ; BL = color at (AX, DX)
+        pop di
+        cmp bl, 48d
+        jbe bubble_collision
+        add si, 320d
+    loop col_check
     
 
     cmp colli_stat, 1
@@ -278,19 +281,23 @@ erase_current_ball proc uses cx di ax dx
     mov player_x ,ax
     mov player_y ,dx
     xor di, di          ; Initialize di (result index)
-    mov cx, 12
-    mov al, background_color         
+    mov cx, 12       
     erase_col:
         push cx             ; Preserve cx (inner loop count)
         push player_x
         mov cx,12  
         erase_row:
+            mov al, ball[di]       
+            cmp al,99
+            je erase_continiue
+            mov al, background_color  
             push cx
             mov ah,0Ch 
             mov cx,player_x
             mov dx,player_y
             int 10h
             pop cx
+            erase_continiue:
             inc di                ; Move to next pixal in result matrix
             inc player_x
         loop erase_row
