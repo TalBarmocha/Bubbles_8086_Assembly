@@ -163,6 +163,9 @@ shoot proc uses ax bx cx dx si di
     pop dx
     pop ax
     ;inset call fix_grid
+    ;get new player_X, player_y
+    ;call erase_current_ball
+    ;call draw_ball
     ret
 shoot endp
 
