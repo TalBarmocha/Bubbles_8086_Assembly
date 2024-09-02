@@ -162,6 +162,7 @@ shoot proc uses ax bx cx dx si di
     ; Animation ends
     pop dx
     pop ax
+    ;inset call fix_grid
     ret
 shoot endp
 
