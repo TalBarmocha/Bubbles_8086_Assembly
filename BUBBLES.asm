@@ -5,9 +5,10 @@
 ;Graphics:
 include fontdata.asm
 include colors.asm
-;include manu.asm
-location_x DW 05d
-location_y DW 05d
+init_row_x equ 05d
+init_row_y equ 05d
+location_x DW init_row_x
+location_y DW init_row_y
 colli_stat DB 0d
 background_color equ 100d
 space_point DW 0d
@@ -25,6 +26,10 @@ player_x DW init_player_x
 player_y Dw init_player_y
 mouse_x DW 0d
 mouse_y DW 0d
+down_time DB 30d
+down_time_counter DB 0d
+clock_counter DB 0d
+
 
 .code
 include mouse.asm
@@ -52,7 +57,9 @@ main proc
     main_loop:
     ; Check if a key is pressed
     call check_mouse
-    
+    call end_game_chck
+    cmp bh, 1d         ; Check if there is a thouch on the line
+    je exit
     mov ah, 1          ; Function 01h: Check for keystroke availability
     int 16h            ; BIOS keyboard interrupt
     jz main_loop       ; If no key is pressed, continue looping
@@ -83,6 +90,9 @@ main proc
         mov location_y, 05d
         mov player_x, init_player_x
         mov player_y, init_player_y
+        mov down_time, 0d
+        mov down_time_counter, 0d
+        mov clock_counter, 0d
         ;hide cursor
         mov ax, 2
         int 33h
@@ -98,6 +108,27 @@ main proc
     int 10h
     mov ah, 4Ch                ; Terminate the program
     int 21h                    ; DOS interrupt to exit
-main endp 
+main endp
+
+; return BH = 0 if the game countines, BH = 1 if the line is covered
+end_game_chck proc uses ax cx dx si di
+    ;y = 173, x = 4
+    xor bh, bh
+    xor di,di
+    mov ax, 0A000h
+    mov es, ax
+    mov di, 55044
+    mov cx, 242
+    end_game_loop:
+    mov al,es:[di]
+    cmp al, 78d
+    ja no_touch
+    mov cx, 1d
+    mov bh, 1d
+    no_touch:
+    inc di
+    loop end_game_loop
+    ret
+end_game_chck endp
 
 end main

@@ -371,11 +371,15 @@ draw_limit_line endp
 shift_visual proc uses es si di ax bx cx dx
     ;5 < y < 161, 5< x < 245 ; move 3840 pixel to shift 12 lines down
     ;start pixel 51765
+    ;hide cursor
+    mov ax, 2
+    int 33h
+    ;start shift
     mov ax, 0A000h
     mov es, ax
     mov si, 3840d
     mov cx, 157d
-    mov bx, 51765d
+    mov bx, 51445d
     y_down_loop:
         push cx
         mov cx, 243d
@@ -389,5 +393,9 @@ shift_visual proc uses es si di ax bx cx dx
         sub bx, 77
         pop cx
     loop y_down_loop
+    ;show cursor
+    mov ax, 1
+    int 33h
+    ;return
     ret
 shift_visual endp

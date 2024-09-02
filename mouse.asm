@@ -18,6 +18,8 @@ check_mouse proc uses ax bx cx dx
     test bx, 1          ; Check if the button is still pressed
     jnz wait_release    ; If pressed, wait for release
 
+    ;stop counting time
+    call IVT_return
     ; Check bounds (assuming 320x200 resolution)
     cmp mouse_x, 5      
     jbe no_click  
@@ -45,6 +47,8 @@ check_mouse proc uses ax bx cx dx
     ;reset player_x and player_y location
     mov player_x, init_player_x
     mov player_y, init_player_y
+    ;continue time check
+    call IVT_change
     ;show cursor
     mov ax, 1
     int 33h

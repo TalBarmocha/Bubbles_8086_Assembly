@@ -14,8 +14,22 @@ get_sec_RTC endp
 ;==================================================
 ;This procedure handles the timer interrupt
 ;==================================================
-new_Int1C proc far uses ax bx es si
+new_Int1C proc far uses ax
+    inc clock_counter       ; Increment clock counter
+    cmp clock_counter, 19d  ; Check if counter >= 19
+    jl clock_advance              ; If less, jump to advance
+    inc down_time_counter
+    mov clock_counter, 0d
+    mov al, down_time
+    cmp down_time_counter,al
+    jb clock_advance
+    mov location_x, init_row_x
+    mov location_y, init_row_y
+    call shift_visual
+    call draw_balls_line
+    mov down_time_counter, 0d
     ;down a line
+    clock_advance:
     int 80h                 ; Call DOS interrupt for timer
     iret                    ; Return from interrupt
 new_Int1C endp
