@@ -150,8 +150,6 @@ draw_num endp
 ;This procedure draws a line of 20 balls
 ;==================================================
 draw_balls_line proc uses ax bx cx dx si di
-    call shift_line_grid
-    xor ax, ax
     push location_x
     mov cx, 4d
     balls_line:
@@ -167,11 +165,6 @@ draw_balls_line proc uses ax bx cx dx si di
         draw_color_set:
         push bx
         mov al,[bx+di]
-        ;update grid
-        xor bx,bx
-        mov bl,ah
-        mov bubble_grid[bx],al
-        inc ah
         ;draw ball
         mov bl,al
         call draw_ball
@@ -393,6 +386,7 @@ shift_visual proc uses es si di ax bx cx dx
         sub bx, 77
         pop cx
     loop y_down_loop
+    call end_game_chck
     ;show cursor
     mov ax, 1
     int 33h

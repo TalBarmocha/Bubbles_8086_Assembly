@@ -26,9 +26,10 @@ player_x DW init_player_x
 player_y Dw init_player_y
 mouse_x DW 0d
 mouse_y DW 0d
-down_time DB 30d
+down_time DB 1d
 down_time_counter DB 0d
 clock_counter DB 0d
+end_game_T_F DB 0d
 
 
 .code
@@ -37,7 +38,6 @@ include graphics.asm
 include time.asm
 include random.asm
 include explo.asm
-include database.asm
 include clock.asm
 main proc
     mov ax, @data               ; Load data segment address into AX
@@ -57,10 +57,9 @@ main proc
     int 33h
     main_loop:
     ; Check if a key is pressed
-    call check_mouse
-    call end_game_chck
-    cmp bh, 1d         ; Check if there is a thouch on the line
+    cmp end_game_T_F, 1
     je exit
+    call check_mouse
     mov ah, 1          ; Function 01h: Check for keystroke availability
     int 16h            ; BIOS keyboard interrupt
     jz main_loop       ; If no key is pressed, continue looping
@@ -91,9 +90,10 @@ main proc
         mov location_y, 05d
         mov player_x, init_player_x
         mov player_y, init_player_y
-        mov down_time, 0d
+        mov down_time, 20d
         mov down_time_counter, 0d
         mov clock_counter, 0d
+        mov end_game_T_F, 0d
         ;hide cursor
         mov ax, 2
         int 33h
@@ -129,6 +129,7 @@ end_game_chck proc uses ax cx dx si di
     no_touch:
     inc di
     loop end_game_loop
+    mov end_game_T_F, bh
     ret
 end_game_chck endp
 
