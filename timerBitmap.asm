@@ -339,6 +339,11 @@ timer_frame_19 DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
+clock_frames DW offset timer_frame_0,offset timer_frame_1,offset timer_frame_2,offset timer_frame_3,offset timer_frame_4
+             DW offset timer_frame_5,offset timer_frame_6,offset timer_frame_7,offset timer_frame_8,offset timer_frame_9
+             DW offset timer_frame_10,offset timer_frame_11,offset timer_frame_12,offset timer_frame_13,offset timer_frame_14
+             DW offset timer_frame_15,offset timer_frame_16,offset timer_frame_17,offset timer_frame_18,offset timer_frame_19
+
 ;TODO - down_time should be always 20d, the change should be in how we preceve a second
 ; clock_counter = 28 --> 30 sec round (slowest)
 ; clock_counter = 23 --> 25 sec round

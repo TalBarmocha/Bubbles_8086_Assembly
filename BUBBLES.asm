@@ -5,6 +5,7 @@
 ;Graphics:
 include fontdata.asm
 include colors.asm
+include timerBitmap.asm
 init_row_x equ 05d
 init_row_y equ 05d
 location_x DW init_row_x
@@ -38,7 +39,6 @@ include graphics.asm
 include time.asm
 include random.asm
 include explo.asm
-include clock.asm
 main proc
     mov ax, @data               ; Load data segment address into AX
     mov ds, ax                  ; Move data segment address to DS

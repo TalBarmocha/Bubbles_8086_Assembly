@@ -3,6 +3,7 @@ GAME_START proc
     call background
     call game_frame
     call print_score
+    call draw_tiemr
     ;draw initial ball lines
     mov cx,6d
     call get_sec_RTC
@@ -393,3 +394,56 @@ shift_visual proc uses es si di ax bx cx dx
     ;return
     ret
 shift_visual endp
+
+;==================================================
+;This procedure draw a 16x16 frame of timer
+;the number of the frame is stored in down_time_counter
+;starting at location_x and location_y as the
+;top left cornet of the number
+;==================================================
+draw_tiemr proc uses ax bx cx dx di
+    xor bh,bh
+    mov bl,down_time_counter
+    push location_x 
+    push location_y 
+    xor di, di          ; Initialize di (result index)
+    mov cx, 16
+    ; Load address of number font
+    mov dx, offset clock_frames
+    mov si,bx
+    add si,bx
+    add si,dx                   ;SI = clock_frames[bl]
+    mov bx,[si]
+    mov location_x, 278d
+    mov location_y, 94d       
+    timer_col:
+        push cx             ; Preserve cx (inner loop count)
+        push location_x
+        mov cx,16  
+        timer_row:
+            mov al,[bx+di]  
+            cmp al, 1
+            jne timer_continiue
+            mov al, 42d
+            timer_continiue:
+            cmp al, 0
+            jne t_draw
+            mov al, 100d
+            t_draw:
+            push cx
+            mov ah,0Ch
+            mov cx,location_x
+            mov dx,location_y
+            int 10h
+            pop cx
+            inc di                ; Move to next pixal in result matrix
+            inc location_x
+        loop timer_row
+        pop location_x
+        inc location_y
+        pop cx                  ; Restore cx (inner loop count)
+    loop timer_col
+    pop location_y
+    pop location_x 
+    ret
+draw_tiemr endp

@@ -19,6 +19,7 @@ new_Int1C proc far uses ax
     cmp clock_counter, 19d  ; Check if counter >= 19
     jl clock_advance              ; If less, jump to advance
     inc down_time_counter
+    call draw_tiemr
     mov clock_counter, 0d
     mov al, down_time
     cmp down_time_counter,al
