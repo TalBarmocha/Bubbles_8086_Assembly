@@ -162,10 +162,17 @@ shoot proc uses ax bx cx dx si di
     ; Animation ends
     pop dx
     pop ax
-    ;inset call fix_grid
-    ;get new player_X, player_y
-    ;call erase_current_ball
-    ;call draw_ball
+    ;erasure the old ball
+    call erase_current_ball
+    ;arrangement of the ball's position in the grid
+    call update_ball_front_grid
+    call update_ball_back_grid
+    ;drowing the new ball in the right location
+    mov location_x, player_x
+    mov location_y, player_y
+    mov bl, current_ball
+    call draw_ball
+
     ret
 shoot endp
 
@@ -317,3 +324,44 @@ erase_current_ball proc uses cx di ax dx
     pop player_y
     ret
 erase_current_ball endp
+
+;==================================================
+;This procedure adjusts the corrected position of the ball relative to the grid
+;player_x
+;==================================================
+update_ball_front_grid proc uses ax bx dx
+    mov ax, player_x
+    
+    ; Apply modulo 12
+    mov bx, 12
+    div bx          ; AX = AX / 12, DX = remainder
+    ; The result is in DX, the result is in range [0,11]
+    
+    cmp dx, 11
+    jne stick_left
+    cmp dx, 5
+    jae stick_left
+    
+    ; Stick_right
+    sub dx, 6
+    cmp dx, 0
+    jge abs_dx_done
+    neg dx
+    abs_dx_done:
+    add ax, dx
+    mov player_x, ax
+    jmp end_new_grid
+    
+    ; Stick_left
+    stick_left:
+    sub dx, 6
+    cmp dx, 0
+    jge abs_dx_done
+    neg dx
+    abs_dx_done:
+    sub ax, dx
+    mov player_x, ax
+
+    end_new_grid:
+    ret
+update_ball_front_grid endp
