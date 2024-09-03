@@ -29,6 +29,7 @@ new_Int1C proc far uses ax
     call shift_visual
     call draw_balls_line
     mov down_time_counter, 0d
+    call draw_tiemr
     ;down a line
     clock_advance:
     int 80h                 ; Call DOS interrupt for timer

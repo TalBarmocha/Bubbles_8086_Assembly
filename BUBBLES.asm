@@ -5,7 +5,7 @@
 ;Graphics:
 include fontdata.asm
 include colors.asm
-include timerBitmap.asm
+include timer.asm
 init_row_x equ 05d
 init_row_y equ 05d
 location_x DW init_row_x

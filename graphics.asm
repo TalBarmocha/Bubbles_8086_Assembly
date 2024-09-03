@@ -415,7 +415,7 @@ draw_tiemr proc uses ax bx cx dx di
     add si,dx                   ;SI = clock_frames[bl]
     mov bx,[si]
     mov location_x, 278d
-    mov location_y, 94d       
+    mov location_y, 60d       
     timer_col:
         push cx             ; Preserve cx (inner loop count)
         push location_x
