@@ -26,7 +26,7 @@ player_x DW init_player_x
 player_y Dw init_player_y
 mouse_x DW 0d
 mouse_y DW 0d
-down_time DB 1d
+down_time DB 20d
 down_time_counter DB 0d
 clock_counter DB 0d
 end_game_T_F DB 0d
