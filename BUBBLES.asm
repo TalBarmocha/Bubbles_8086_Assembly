@@ -43,7 +43,7 @@ include graphics.asm
 include time.asm
 include random.asm
 include explo.asm
-include converting.asm
+include convert.asm
 main proc
     mov ax, @data               ; Load data segment address into AX
     mov ds, ax                  ; Move data segment address to DS
