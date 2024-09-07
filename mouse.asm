@@ -33,6 +33,7 @@ check_mouse proc uses ax bx cx dx
     int 33h
     ;do function
     call shoot
+    call scan
     call get_currBall_nxtBall
     ;Draw Player
     mov location_x, init_player_x
@@ -163,7 +164,14 @@ shoot proc uses ax bx cx dx si di
     ; Animation ends
     pop dx
     pop ax
-
+    mov ax, player_x
+    mov dx, player_y
+    ;convert to normal
+    mov cl, 8
+    shr ax, cl
+    shr dx, cl
+    mov player_x, ax
+    mov player_y, dx
     ret
 shoot endp
 
@@ -190,20 +198,15 @@ check_collision proc uses di es si cx
     push bx
     mov bx, 0A000h
     mov es, bx
-    ; Calculate the offset: (Y * 320) + X
-    push di
-    xor cx,cx
-    mov bx, dx        ; BX = Y
-    mov cl, 6d
-    shl bx, cl        ; BX = Y * 64
-    mov di, bx
-    mov cl, 2d        ; DI = BX
-    shl bx, cl        ; BX = Y * 256
-    add di, bx        ; DI = Y * 320 (64 + 256 = 320)
-    add di, ax        ; DI = Y * 320 + X
-    mov space_point, di
-    pop di
     pop bx
+    ; Calculate the offset: (Y * 320) + X
+    push ax
+    push dx
+    call loc_incode
+    mov space_point, ax
+    pop dx
+    pop ax
+    
 
     ; save DX and AX 
     push ax
@@ -224,7 +227,7 @@ check_collision proc uses di es si cx
     cmp dx, 0
     je colchck
     add di, 2d
-    mov cx, 8d
+    mov cx, 11d
     xor si, si
     row_check:
         push di
