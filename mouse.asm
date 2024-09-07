@@ -21,9 +21,7 @@ check_mouse proc uses ax bx cx dx
     ;stop counting time
     call IVT_return
     ; Check bounds (assuming 320x200 resolution)
-    cmp mouse_x, 5      
-    jbe no_click  
-    cmp mouse_x, 245    
+    cmp mouse_x, 246    
     jae no_click
     cmp mouse_y, 173
     jae no_click
@@ -211,6 +209,7 @@ check_collision proc uses di es si cx
     ; save DX and AX 
     push ax
     push dx
+    ;convert to 8.8 foramt
     mov cl, 8d
     mov si, player_x
     shr si, cl
@@ -227,7 +226,7 @@ check_collision proc uses di es si cx
     cmp dx, 0
     je colchck
     add di, 2d
-    mov cx, 11d
+    mov cx, 9d
     xor si, si
     row_check:
         push di
@@ -248,7 +247,7 @@ check_collision proc uses di es si cx
     add di, 11
     left_col_check:
     add di, 640d
-    mov cx, 8d
+    mov cx, 9d
     xor si,si
     col_check:
         push di

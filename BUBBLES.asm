@@ -33,8 +33,8 @@ clock_counter DB 0d
 end_game_T_F DB 0d
 ;search algo
 scan_counter DW 0d
-visted_ball DW 0 0 ;visted_ball[0] == x_position, visted_ball[1] == y_position
-balls_2_explo DW 280 DUP(0)
+visted_ball DW 0d ,0d ;visted_ball[0] == x_position, visted_ball[1] == y_position
+balls_2_explo DW 280d DUP(0)
 
 
 .code

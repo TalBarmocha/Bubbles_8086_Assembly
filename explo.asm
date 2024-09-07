@@ -1,19 +1,29 @@
 explosion proc uses si ax dx
-    ;cmp scan_counter, 3
-    ;jb end_explosion
+    cmp scan_counter, 1
+    jb end_explosion
     array_explo:
-    mov si, scan_counter
-    mov ax, balls_2_explo[si]
-    call loc_decode
+        mov si, scan_counter
+        add si, scan_counter
+        mov ax, balls_2_explo[si-2]
+        call loc_decode
+        mov location_x, ax
+        mov location_y, dx
+        call explosion_anim
+        dec scan_counter
+        cmp scan_counter, 0
+    ja array_explo
+    ;explode the player ball
+    mov ax, player_x
+
+    mov dx, player_y
     mov location_x, ax
     mov location_y, dx
     call explosion_anim
-    dec scan_counter
-    cmp scan_counter, 0
-    jle array_explo
+
     end_explosion:
     mov scan_counter, 0
     call init_array_explo
+    
     ret
 explosion endp
 
@@ -30,9 +40,12 @@ explosion_anim proc uses bx cx
     inc bl
 
     ;add delay
-    mov cx,00FFFh
+    mov cx,0FFFFh
     animation_delay:
     loop animation_delay
+    mov cx,00FFFh
+    animation_delay1:
+    loop animation_delay1
     
     cmp bl,6
     jb animation_loop
@@ -45,7 +58,7 @@ explosion_anim endp
 ;starting at location_x and location_y as the
 ;top left cornet of the number
 ;==================================================
-animation_frame proc uses cx di ax dx
+animation_frame proc uses cx di ax bx dx si
     xor bh,bh
     xor di, di          ; Initialize di (result index)
     mov cx, 12
@@ -87,7 +100,7 @@ animation_frame proc uses cx di ax dx
 animation_frame endp
 
 ;takes player_x and player_y and scans the radius of the ball
-scan proc uses ax bx cx dx di si
+scan proc uses ax bx cx dx si
     mov ax, player_x
     mov dx, player_y
     push bx
@@ -98,172 +111,185 @@ scan proc uses ax bx cx dx di si
     call loc_incode
     ;AX = Y * 320 + X
     ;left
-    mov di, ax
-    sub di, 5d
-    add di, 3200d
+    mov si, ax
+    sub si, 5d
+    add si, 3200d
     mov cx, 20d
     left_scan:
-        mov bl, es:[di]   ; BL = color at (AX, DX)
+        mov bl, es:[si]
         cmp bl, 15d
         jne left_next
-        cmp es[di+320], bl
+        cmp es:[si+320], bl
         jz left_next
-        cmp es[di-320], bl
+        cmp es:[si-320], bl
         jz left_next
-        cmp es[di-320], current_ball
+        mov dl, current_ball
+        cmp es:[si-320], dl
         jne end_left_scan
-        push di
-        sub di, 7d
-        sub di, 960d
-        mov si, scan_counter
-        mov balls_2_explo[si],di
-        pop di
+        push si
+        sub si, 7d
+        sub si, 960d
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
         inc scan_counter
-        cmp cx, 12
-        jb left_scan_end 
-        sub cx, 12
-        sub di, 3520d
-        jmp end_left_scan
-        left_scan_end:
-        mov cx, 1d
         jmp end_left_scan
         
         left_next:
-        mov bl, es:[di+1]
+        mov bl, es:[si+1]
         cmp bl, 15d
         jne end_left_scan
-        cmp es[di+320], bl
+        cmp es:[si+321], bl
         jz end_left_scan
-        cmp es[di-320], bl
+        cmp es:[si-319], bl
         jz end_left_scan
-        cmp es[di-320], current_ball
+        mov dl, current_ball
+        cmp es:[si-319], dl
         jne end_left_scan
-        push di
-        sub di, 7d
-        sub di, 960d
-        mov si, scan_counter
-        mov balls_2_explo[si],di
-        pop di
+        push si
+        sub si, 6d
+        sub si, 959d
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
         inc scan_counter
-        cmp cx, 12
-        jb left_scan_end 
-        sub cx, 12
-        sub di, 3521d
         jmp end_left_scan
+
         end_left_scan:
-        sub di, 320d
-    loop left_scan
+        sub si, 320d
+        dec cx
+        cmp cx , 0d 
+    jnz left_scan
+
     ;right
-    mov di, ax
-    add di, 18d
-    add di, 3200d
+    mov si, ax
+    add si, 19d
+    add si, 3200d
     mov cx, 20d
     right_scan:
-        mov bl, es:[di]   ; BL = color at (AX, DX)
+        mov bl, es:[si]   ; BL = color at (AX, DX)
         cmp bl, 15d
         jne right_next
-        cmp es[di+320], bl
+        cmp es:[si+320], bl
         jz right_next
-        cmp es[di-320], bl
+        cmp es:[si-320], bl
         jz right_next
-        cmp es[di-320], current_ball
+        mov dl, current_ball
+        cmp es:[si-320], dl
         jne end_right_scan
-        push di
-        sub di, 7d
-        sub di, 960d
-        mov si, scan_counter
-        mov balls_2_explo[si],di
-        pop di
+        push si
+        sub si, 7d
+        sub si, 960d
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
         inc scan_counter
-        cmp cx, 12
-        jb right_scan_end 
-        sub cx, 12
-        sub di, 3520d
         jmp end_right_scan
-        right_scan_end:
-        mov cx, 1d
-        jmp end_right_scan
+        
         right_next:
-        mov bl, es:[di+1]
+        mov bl, es:[si+1]
         cmp bl, 15d
         jne end_right_scan
-        cmp es[di+320], bl
+        cmp es:[si+321], bl
         jz end_right_scan
-        cmp es[di-320], bl
+        cmp es:[si-319], bl
         jz end_right_scan
-        cmp es[di-320], current_ball
+        mov dl, current_ball
+        cmp es:[si-319], dl
         jne end_right_scan
-        push di
-        sub di, 7d
-        sub di, 960d
-        mov si, scan_counter
-        mov balls_2_explo[si],di
-        pop di
+        push si
+        sub si, 6d
+        sub si, 959d
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
         inc scan_counter
-        cmp cx, 12
-        jb right_scan_end 
-        sub cx, 12
-        sub di, 3521d
         jmp end_right_scan
+    
         end_right_scan:
-        sub di, 320d
-    loop right_scan
+        sub si, 320d
+        dec cx
+        cmp cx , 0d 
+    jnz right_scan
+
     ;up
-    mov di, ax
-    sub di, 3d
-    sub di, 2880d
-    mov cx, 20d
+    mov si, ax
+    sub si, 3d
+    sub si, 2880d
+    mov cx, 21d
     up_scan:
-        mov bl, es:[di]   ; BL = color at (AX, DX)
+        mov bl, es:[si]   ; BL = color at (AX, DX)
         cmp bl, 15d
-        jne up_next
-        cmp es[di+320], bl
-        jz up_next
-        cmp es[di-320], bl
-        jz up_next
-        cmp es[di-320], current_ball
+        jne up_next1
+        cmp es:[si+320], bl
+        jz up_next1
+        cmp es:[si-320], bl
+        jz up_next1
+        mov dl, current_ball
+        cmp es:[si-320], dl
         jne end_up_scan
-        push di
-        sub di, 7d
-        sub di, 960d
-        mov si, scan_counter
-        mov balls_2_explo[si],di
-        pop di
+        push si
+        sub si, 7d
+        sub si, 960d
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
         inc scan_counter
-        cmp cx, 12
-        jb up_scan_end 
-        sub cx, 12
-        add di, 12d
         jmp end_up_scan
-        up_scan_end:
-        mov cx, 1d
+
+        up_next1:
+        mov bl, es:[si+320]
+        cmp bl, 15d
+        jne up_next2
+        cmp es:[si+640], bl
+        jz up_next2
+        cmp es:[si], bl
+        jz up_next2
+        mov dl, current_ball
+        cmp es:[si], dl
+        jne end_up_scan
+        push si
+        add si, 313d
+        sub si, 640d
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
+        inc scan_counter
         jmp end_up_scan
-        up_next:
-        mov bl, es:[di+320]
+
+        up_next2:
+        mov bl, es:[si+640]   ; BL = color at (AX, DX)
         cmp bl, 15d
         jne end_up_scan
-        cmp es[di+320], bl
+        cmp es:[si+960], bl
         jz end_up_scan
-        cmp es[di-320], bl
+        cmp es:[si+320], bl
         jz end_up_scan
-        cmp es[di-320], current_ball
+        mov dl, current_ball
+        cmp es:[si+320], dl
         jne end_up_scan
-        push di
-        sub di, 7d
-        sub di, 960d
-        mov si, scan_counter
-        mov balls_2_explo[si],di
-        pop di
+        push si
+        add si, 633d ;+640-7
+        sub si, 320d ;+640-960
+        mov bx, scan_counter
+        add bx, scan_counter
+        mov balls_2_explo[bx],si
+        pop si
         inc scan_counter
-        cmp cx, 12
-        jb up_scan_end 
-        sub cx, 12
-        sub di, 308d ;+12-320
         jmp end_up_scan
+
         end_up_scan:
-        sub di, 320d
-    loop up_scan
-    ;call explosion
+        inc si
+        dec cx
+        cmp cx , 0d 
+    jnz up_scan
+    ;call explosion function 
     call explosion
     ret
 scan endp

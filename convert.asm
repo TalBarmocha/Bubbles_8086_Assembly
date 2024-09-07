@@ -28,7 +28,8 @@ loc_incode endp
 ;Output: AX = AX = X coordinate, DX = Y coordinate
 ;==================================================
 loc_decode proc uses di
-    div 320
+    mov di, 320d
+    div di
     mov di, ax
     mov ax, dx
     mov dx, di
