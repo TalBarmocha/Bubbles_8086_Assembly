@@ -3,8 +3,9 @@ explosion proc uses si ax dx
     jb end_explosion
     array_explo:
         mov si, scan_counter
-        shl si, 1 
-        mov ax, balls_2_explo[si-2]
+        dec si
+        shl si, 1 ; SI = (scan_counter - 1) * 2
+        mov ax, balls_2_explo[si]
         call loc_decode
         mov location_x, ax
         mov location_y, dx
@@ -100,6 +101,7 @@ animation_frame endp
 
 ;takes player_x and player_y and scans the radius of the ball
 scan proc uses ax bx cx dx si
+    mov scan_counter, 0
     mov ax, player_x
     mov dx, player_y
     ;Calculate the offset: (Y * 320) + X
@@ -125,7 +127,7 @@ scan proc uses ax bx cx dx si
         sub si, 7d
         sub si, 960d
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
@@ -146,7 +148,7 @@ scan proc uses ax bx cx dx si
         sub si, 6d
         sub si, 960d
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
