@@ -11,7 +11,7 @@ explosion proc uses si ax dx
         call explosion_anim
         dec scan_counter
         cmp scan_counter, 0
-    ja array_explo
+        ja array_explo
     ;explode the player ball
     mov ax, player_x
 
@@ -58,7 +58,7 @@ explosion_anim endp
 ;starting at location_x and location_y as the
 ;top left cornet of the number
 ;==================================================
-animation_frame proc uses cx di ax bx dx si
+animation_frame proc uses ax bx cx dx di si
     xor bh,bh
     xor di, di          ; Initialize di (result index)
     mov cx, 12
@@ -103,11 +103,7 @@ animation_frame endp
 scan proc uses ax bx cx dx si
     mov ax, player_x
     mov dx, player_y
-    push bx
-    mov bx, 0A000h
-    mov es, bx
-    pop bx
-    ; Calculate the offset: (Y * 320) + X
+    ;Calculate the offset: (Y * 320) + X
     call loc_incode
     ;AX = Y * 320 + X
     ;left
