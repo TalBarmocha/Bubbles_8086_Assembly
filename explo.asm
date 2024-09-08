@@ -11,10 +11,10 @@ explosion proc uses si ax dx
         call explosion_anim
         dec scan_counter
         cmp scan_counter, 0
-        ja array_explo
+    ja array_explo
+
     ;explode the player ball
     mov ax, player_x
-
     mov dx, player_y
     mov location_x, ax
     mov location_y, dx
