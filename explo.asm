@@ -86,7 +86,6 @@ animation_frame proc uses ax bx cx dx di si
             mov dx,location_y
             int 10h
             pop cx
-            
             inc di                ; Move to next pixal in result matrix
             inc location_x
         loop frame_row
