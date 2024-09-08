@@ -3,7 +3,7 @@ explosion proc uses si ax dx
     jb end_explosion
     array_explo:
         mov si, scan_counter
-        add si, scan_counter
+        shl si, 1 
         mov ax, balls_2_explo[si-2]
         call loc_decode
         mov location_x, ax
@@ -145,7 +145,7 @@ scan proc uses ax bx cx dx si
         jne end_left_scan
         push si
         sub si, 6d
-        sub si, 959d
+        sub si, 960d
         mov bx, scan_counter
         add bx, scan_counter
         mov balls_2_explo[bx],si
@@ -179,7 +179,7 @@ scan proc uses ax bx cx dx si
         sub si, 7d
         sub si, 960d
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1 
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
@@ -198,9 +198,9 @@ scan proc uses ax bx cx dx si
         jne end_right_scan
         push si
         sub si, 6d
-        sub si, 959d
+        sub si, 960d
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1 
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
@@ -232,7 +232,7 @@ scan proc uses ax bx cx dx si
         sub si, 7d
         sub si, 960d
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1 
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
@@ -250,10 +250,10 @@ scan proc uses ax bx cx dx si
         cmp es:[si], dl
         jne end_up_scan
         push si
-        add si, 313d
+        sub si, 7d
         sub si, 640d
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1 
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
@@ -271,10 +271,10 @@ scan proc uses ax bx cx dx si
         cmp es:[si+320], dl
         jne end_up_scan
         push si
-        add si, 633d ;+640-7
+        sub si, 7d 
         sub si, 320d ;+640-960
         mov bx, scan_counter
-        add bx, scan_counter
+        shl bx, 1 
         mov balls_2_explo[bx],si
         pop si
         inc scan_counter
