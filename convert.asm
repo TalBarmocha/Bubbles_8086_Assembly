@@ -26,8 +26,10 @@ loc_incode endp
 ;the screen array to the X coordinate and Y coordinate.
 ;Input: AX = Y * 320 + X.
 ;Output: AX = AX = X coordinate, DX = Y coordinate
+;!!Hazard!! DX is altered in this procedure.
 ;==================================================
 loc_decode proc uses di
+    xor dx, dx
     mov di, 320d
     div di
     mov di, ax
