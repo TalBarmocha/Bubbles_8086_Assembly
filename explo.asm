@@ -2,6 +2,7 @@ explosion proc uses si ax dx
     cmp scan_counter, 1
     jb end_explosion
     array_explo:
+        xor dx,dx
         mov si, scan_counter
         dec si
         shl si, 1 ; SI = (scan_counter - 1) * 2
