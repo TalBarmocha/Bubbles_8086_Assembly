@@ -66,7 +66,7 @@ animation_frame proc uses ax bx cx dx di si
     ; Load address of number font
     mov dx, offset explosion_frames
     mov si,bx
-    add si,bx
+    shl si,1
     add si,dx                   ;SI = *explosion_frames[bl]
     mov bx,[si]
     push location_x 
@@ -76,7 +76,9 @@ animation_frame proc uses ax bx cx dx di si
         push location_x
         mov cx,12  
         frame_row:
-            mov al,[bx+di]  
+            mov al,[bx+di]
+            cmp al,99
+            je skip_pixal  
             cmp al,98
             jne frame_continiue
             mov al,current_ball
@@ -87,6 +89,7 @@ animation_frame proc uses ax bx cx dx di si
             mov dx,location_y
             int 10h
             pop cx
+            skip_pixal:
             inc di                ; Move to next pixal in result matrix
             inc location_x
         loop frame_row

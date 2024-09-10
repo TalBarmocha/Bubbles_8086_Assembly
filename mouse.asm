@@ -224,9 +224,9 @@ check_collision proc uses di es si cx
     mov di, space_point
     ;row check
     cmp dx, 0
-    je colchck
+    je cornerchck
     add di, 2d
-    mov cx, 9d
+    mov cx, 8d
     xor si, si
     row_check:
         push di
@@ -237,9 +237,20 @@ check_collision proc uses di es si cx
         jbe bubble_collision
         inc si
     loop row_check
+
+    mov di, space_point
+    ;corners check
+    cornerchck:
+    add di, 321d
+    cmp ax, 0
+    jl left_corner_check
+    add di, 9
+    left_corner_check:
+        mov bl, es:[di]   ; BL = color at (AX, DX)
+        cmp bl, 48d
+        jbe bubble_collision
     
     mov di, space_point
-    colchck:
     ; column check
     cmp ax, 0
     je end_colli_chck
@@ -247,7 +258,7 @@ check_collision proc uses di es si cx
     add di, 11
     left_col_check:
     add di, 640d
-    mov cx, 9d
+    mov cx, 8d
     xor si,si
     col_check:
         push di
