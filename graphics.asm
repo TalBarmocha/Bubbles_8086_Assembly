@@ -25,14 +25,7 @@ GAME_START proc
     mov bl,next_ball
     call draw_ball
     ;Draw lifes:
-    mov cl,lifes
-    mov bl,27d ;light gray
-    mov location_x, 278d
-    mov location_y, 114d
-    print_lifes:
-        call draw_ball
-        add location_y,14d
-    loop print_lifes
+    call draw_lifes
     call draw_limit_line
     ret
 GAME_START endp
@@ -126,15 +119,12 @@ draw_num proc uses cx di ax dx
         mov cx,12  
         num_rows:
             mov al,[bx+di]  
-            cmp al,99
-            je num_continiue
             push cx
             mov ah,0Ch
             mov cx,location_x
             mov dx,location_y
             int 10h
             pop cx
-            num_continiue:
             inc di                ; Move to next pixal in result matrix
             inc location_x
         loop num_rows
@@ -447,3 +437,19 @@ draw_tiemr proc uses ax bx cx dx di
     pop location_x 
     ret
 draw_tiemr endp
+
+draw_lifes proc uses cx bx
+    push location_x
+    push location_y
+    mov cl,lifes
+    mov bl,27d ;light gray
+    mov location_x, 278d
+    mov location_y, 114d
+    print_lifes:
+        call draw_ball
+        add location_y,14d
+    loop print_lifes
+    pop location_y
+    pop location_x
+    ret
+draw_lifes endp

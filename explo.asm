@@ -1,6 +1,4 @@
 explosion proc uses si ax dx
-    cmp scan_counter, 1
-    jb end_explosion
     array_explo:
         mov si, scan_counter
         dec si
@@ -10,6 +8,7 @@ explosion proc uses si ax dx
         mov location_x, ax
         mov location_y, dx
         call explosion_anim
+        mov balls_2_explo[si],0
         dec scan_counter
         cmp scan_counter, 0
     ja array_explo
@@ -20,11 +19,6 @@ explosion proc uses si ax dx
     mov location_x, ax
     mov location_y, dx
     call explosion_anim
-
-    end_explosion:
-    mov scan_counter, 0
-    call init_array_explo
-    
     ret
 explosion endp
 
@@ -290,15 +284,38 @@ scan proc uses ax bx cx dx si
         cmp cx , 0d 
     jnz up_scan
     ;call explosion function 
+    cmp scan_counter, 1
+    jae no_explosion
+    call update_lifes
+    ret
+    no_explosion:
     call explosion
+    ;update points
     ret
 scan endp
 
-init_array_explo proc uses cx si
-    mov cx, 280
-    array_explo_loop:
-        mov si, cx
-        mov balls_2_explo[si-1],0
-    loop array_explo_loop
+update_lifes proc uses ax bx cx
+    dec lifes
+    push location_x
+    push location_y
+    mov cl,lifes
+    mov location_x, 278d
+    mov location_y, 114d
+    mov ax, 14
+    mul cl
+    add location_y, ax
+    mov bl,100
+    call draw_ball
+    pop location_y
+    pop location_x
+    cmp lifes,0
+    jne end_life_update
+        dec time_const_indx
+        mov lifes,5
+        call draw_lifes
+        cmp time_const_indx,0
+        jne end_life_update
+        mov end_game_T_F, 1
+    end_life_update:
     ret
-init_array_explo endp
+update_lifes endp

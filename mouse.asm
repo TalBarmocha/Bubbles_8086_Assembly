@@ -286,7 +286,7 @@ check_collision endp
 
 ;==================================================
 ;This procedure earase the 12x12 pixels in location:
-;player_x and player_y
+;player_x and player_y in 8.8 foramt
 ;==================================================
 erase_current_ball proc uses cx di ax dx
     ; Load the base segment for video memory

@@ -27,7 +27,8 @@ player_x DW init_player_x
 player_y Dw init_player_y
 mouse_x DW 0d
 mouse_y DW 0d
-down_time DB 20d
+time_constent DB 5,9,19,28 ;second option: 5,9,14,19,23,28
+time_const_indx DB 3d
 down_time_counter DB 0d
 clock_counter DB 0d
 end_game_T_F DB 0d
@@ -97,10 +98,11 @@ main proc
         mov location_y, 05d
         mov player_x, init_player_x
         mov player_y, init_player_y
-        mov down_time, 20d
+        mov time_const_indx, 3d
         mov down_time_counter, 0d
         mov clock_counter, 0d
         mov end_game_T_F, 0d
+        
         ;hide cursor
         mov ax, 2
         int 33h
@@ -118,9 +120,9 @@ main proc
     mov ah, 01h
     mov ch, 20h             ; Set cursor start line to bottom to hide it
     int 10h
-
+    ;last screen
     call print_game_over
-    call score_print
+    call end_score_print
     ; Wait for a key press before exiting
     mov ah, 0
     int 16h
@@ -175,7 +177,7 @@ print_game_over proc
     ret
 print_game_over endp
 
-score_print proc
+end_score_print proc
     ; Move cursor to calculated position (row 12, column 36)
     mov dh, 12                  ; Row 12
     mov dl, 34                  ; Column 29
@@ -214,6 +216,6 @@ score_print proc
         int 10h
     loop print_digits           ; Loop until all digits are printed
     ret
-score_print endp
+end_score_print endp
 
 end main

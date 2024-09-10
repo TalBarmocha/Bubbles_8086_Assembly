@@ -14,15 +14,17 @@ get_sec_RTC endp
 ;==================================================
 ;This procedure handles the timer interrupt
 ;==================================================
-new_Int1C proc far uses ax
+new_Int1C proc far uses ax bx
     inc clock_counter       ; Increment clock counter
-    cmp clock_counter, 19d  ; Check if counter >= 19
+    xor bh,bh
+    mov bl,time_const_indx
+    mov al, time_constent[bx]
+    cmp clock_counter, al  ; Check if counter >= time constent
     jl clock_advance              ; If less, jump to advance
     inc down_time_counter
     call draw_tiemr
     mov clock_counter, 0d
-    mov al, down_time
-    cmp down_time_counter,al
+    cmp down_time_counter,20
     jb clock_advance
     mov location_x, init_row_x
     mov location_y, init_row_y
