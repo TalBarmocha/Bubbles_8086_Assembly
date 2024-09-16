@@ -160,6 +160,28 @@ shoot proc uses ax bx cx dx si di
     
     end_anim:
     ; Animation ends
+    push si
+    push di
+    ;convert to normal
+    mov cl, 8
+    shr si, cl
+    shr di, cl
+
+    cmp si, 2
+    jb no_baby_step_dx
+    sub ax, 1d
+    mov colli_stat, 0
+    no_baby_step_dx:
+    cmp di, 2
+    jb no_baby_step_dy
+    sub dh, 1d
+    mov colli_stat, 0
+    no_baby_step_dy:
+    cmp colli_stat, 0
+    pop di
+    pop si
+    je no_wall_colli
+
     pop dx
     pop ax
     mov ax, player_x
