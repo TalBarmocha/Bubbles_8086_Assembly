@@ -107,42 +107,21 @@ scan proc uses ax bx cx dx si
     ;left
     mov si, ax
     sub si, 5d
-    add si, 3200d
-    mov cx, 20d
+    add si, 3520d
+    mov cx, 16d
     left_scan:
         mov bl, es:[si]
         cmp bl, 15d
-        jne left_next
+        jne end_left_scan
         cmp es:[si+320], bl
-        jz left_next
+        jz end_left_scan
         cmp es:[si-320], bl
-        jz left_next
+        jz end_left_scan
         mov dl, current_ball
         cmp es:[si-320], dl
         jne end_left_scan
         push si
         sub si, 7d
-        sub si, 960d
-        mov bx, scan_counter
-        shl bx, 1
-        mov balls_2_explo[bx],si
-        pop si
-        inc scan_counter
-        jmp end_left_scan
-        
-        left_next:
-        mov bl, es:[si+1]
-        cmp bl, 15d
-        jne end_left_scan
-        cmp es:[si+321], bl
-        jz end_left_scan
-        cmp es:[si-319], bl
-        jz end_left_scan
-        mov dl, current_ball
-        cmp es:[si-319], dl
-        jne end_left_scan
-        push si
-        sub si, 6d
         sub si, 960d
         mov bx, scan_counter
         shl bx, 1
@@ -157,45 +136,84 @@ scan proc uses ax bx cx dx si
         cmp cx , 0d 
     jnz left_scan
 
+    ;top left
+    mov si, ax
+    sub si, 5d
+    sub si, 1600d
+    mov cx,2
+    top_left1:
+        mov bl, es:[si]
+        cmp bl, 15d
+        jne end_top_left1
+        cmp es:[si+320], bl
+        jz end_top_left1
+        cmp es:[si-320], bl
+        jz end_top_left1
+        mov dl, current_ball
+        cmp es:[si-320], dl
+        jne end_top_left1
+        push si
+        sub si, 7d
+        sub si, 960d
+        mov bx, scan_counter
+        shl bx, 1
+        mov balls_2_explo[bx],si
+        pop si
+        end_top_left1:
+        inc si
+    loop top_left1
+
+    sub si, 322d  ;up one row and two pixels to the left
+    mov cx,3
+    top_left2:
+        push cx
+        push si
+        mov cx,3
+        trio_top_left:
+            mov bl, es:[si]
+            cmp bl, 15d
+            jne end_top_left2
+            cmp es:[si+320], bl
+            jz end_top_left2
+            cmp es:[si-320], bl
+            jz end_top_left2
+            mov dl, current_ball
+            cmp es:[si-320], dl
+            jne end_top_left2
+            push si
+            sub si, 7d
+            sub si, 960d
+            mov bx, scan_counter
+            shl bx, 1
+            mov balls_2_explo[bx],si
+            pop si
+            inc scan_counter
+            end_top_left2:
+            inc si
+        loop trio_top_left
+        pop si
+        pop cx
+        sub si, 319 ;up one row and one pixel to the right
+    loop top_left2
+    
     ;right
     mov si, ax
     add si, 19d
-    add si, 3200d
-    mov cx, 20d
+    add si, 3520d
+    mov cx, 16d
     right_scan:
-        mov bl, es:[si]   ; BL = color at (AX, DX)
+        mov bl, es:[si]
         cmp bl, 15d
-        jne right_next
+        jne end_right_scan
         cmp es:[si+320], bl
-        jz right_next
+        jz end_right_scan
         cmp es:[si-320], bl
-        jz right_next
+        jz end_right_scan
         mov dl, current_ball
         cmp es:[si-320], dl
         jne end_right_scan
         push si
         sub si, 7d
-        sub si, 960d
-        mov bx, scan_counter
-        shl bx, 1 
-        mov balls_2_explo[bx],si
-        pop si
-        inc scan_counter
-        jmp end_right_scan
-        
-        right_next:
-        mov bl, es:[si+1]
-        cmp bl, 15d
-        jne end_right_scan
-        cmp es:[si+321], bl
-        jz end_right_scan
-        cmp es:[si-319], bl
-        jz end_right_scan
-        mov dl, current_ball
-        cmp es:[si-319], dl
-        jne end_right_scan
-        push si
-        sub si, 6d
         sub si, 960d
         mov bx, scan_counter
         shl bx, 1 
@@ -209,68 +227,86 @@ scan proc uses ax bx cx dx si
         dec cx
         cmp cx , 0d 
     jnz right_scan
-
-    ;up
+    
+    ;top right
     mov si, ax
-    sub si, 3d
-    sub si, 2880d
-    mov cx, 21d
-    up_scan:
-        mov bl, es:[si]   ; BL = color at (AX, DX)
+    add si, 19d
+    sub si, 1600d
+    mov cx,2
+    top_right1:
+        mov bl, es:[si]
         cmp bl, 15d
-        jne up_next1
+        jne end_top_right1
         cmp es:[si+320], bl
-        jz up_next1
+        jz end_top_right1
         cmp es:[si-320], bl
-        jz up_next1
+        jz end_top_right1
         mov dl, current_ball
         cmp es:[si-320], dl
-        jne end_up_scan
+        jne end_top_right1
         push si
         sub si, 7d
         sub si, 960d
         mov bx, scan_counter
-        shl bx, 1 
+        shl bx, 1
         mov balls_2_explo[bx],si
         pop si
-        inc scan_counter
-        jmp end_up_scan
+        end_top_right1:
+        dec si
+    loop top_right1
 
-        up_next1:
-        mov bl, es:[si+320]
-        cmp bl, 15d
-        jne up_next2
-        cmp es:[si+640], bl
-        jz up_next2
-        cmp es:[si], bl
-        jz up_next2
-        mov dl, current_ball
-        cmp es:[si], dl
-        jne end_up_scan
+    sub si, 318d  ;up one row and two pixels to the right
+    mov cx,3
+    top_right2:
+        push cx
         push si
-        sub si, 7d
-        sub si, 640d
-        mov bx, scan_counter
-        shl bx, 1 
-        mov balls_2_explo[bx],si
+        mov cx,3
+        trio_top_right:
+            mov bl, es:[si]
+            cmp bl, 15d
+            jne end_top_right2
+            cmp es:[si+320], bl
+            jz end_top_right2
+            cmp es:[si-320], bl
+            jz end_top_right2
+            mov dl, current_ball
+            cmp es:[si-320], dl
+            jne end_top_right2
+            push si
+            sub si, 7d
+            sub si, 960d
+            mov bx, scan_counter
+            shl bx, 1
+            mov balls_2_explo[bx],si
+            pop si
+            inc scan_counter
+            end_top_right2:
+            dec si
+        loop trio_top_right
         pop si
-        inc scan_counter
-        jmp end_up_scan
+        pop cx
+        sub si, 321 ;up one row and one pixel to the left
+    loop top_right2
 
-        up_next2:
-        mov bl, es:[si+640]   ; BL = color at (AX, DX)
+    ;up
+    mov si, ax
+    sub si, 2d
+    sub si, 2880d
+    mov cx, 19d
+    up_scan:
+        mov bl, es:[si]   ; BL = color at (AX, DX)
         cmp bl, 15d
         jne end_up_scan
-        cmp es:[si+960], bl
-        jz end_up_scan
         cmp es:[si+320], bl
         jz end_up_scan
+        cmp es:[si-320], bl
+        jz end_up_scan
         mov dl, current_ball
-        cmp es:[si+320], dl
+        cmp es:[si-320], dl
         jne end_up_scan
         push si
         sub si, 7d 
-        sub si, 320d ;+640-960
+        sub si, 960d 
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
