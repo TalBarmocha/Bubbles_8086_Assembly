@@ -12,13 +12,6 @@ explosion proc uses si ax dx
         dec scan_counter
         cmp scan_counter, 0
     ja array_explo
-
-    ;explode the player ball
-    mov ax, player_x
-    mov dx, player_y
-    mov location_x, ax
-    mov location_y, dx
-    call explosion_anim
     ret
 explosion endp
 
@@ -96,14 +89,8 @@ animation_frame proc uses ax bx cx dx di si
     ret
 animation_frame endp
 
-;takes player_x and player_y and scans the radius of the ball
-scan proc uses ax bx cx dx si
-    mov scan_counter, 0
-    mov ax, player_x
-    mov dx, player_y
-    ;Calculate the offset: (Y * 320) + X
-    call loc_incode
-    ;AX = Y * 320 + X
+;takes AX = (Y * 320 + X) and scans the radius of the ball
+scan proc uses ax bx cx dx si di
     ;left
     mov si, ax
     sub si, 5d
@@ -123,13 +110,17 @@ scan proc uses ax bx cx dx si
         push si
         sub si, 7d
         sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr1
         mov bx, scan_counter
         shl bx, 1
         mov balls_2_explo[bx],si
-        pop si
         inc scan_counter
-        jmp end_left_scan
-
+        mov ax, si
+        call scan
+        is_in_arr1:
+        pop si
         end_left_scan:
         sub si, 320d
         dec cx
@@ -155,9 +146,16 @@ scan proc uses ax bx cx dx si
         push si
         sub si, 7d
         sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr2
         mov bx, scan_counter
         shl bx, 1
         mov balls_2_explo[bx],si
+        inc scan_counter
+        mov ax, si
+        call scan
+        is_in_arr2:
         pop si
         end_top_left1:
         inc si
@@ -183,11 +181,17 @@ scan proc uses ax bx cx dx si
             push si
             sub si, 7d
             sub si, 960d
+            call find
+            cmp di, 1
+            je is_in_arr3
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
-            pop si
             inc scan_counter
+            mov ax, si
+            call scan
+            is_in_arr3:
+            pop si
             end_top_left2:
             inc si
         loop trio_top_left
@@ -215,13 +219,17 @@ scan proc uses ax bx cx dx si
         push si
         sub si, 7d
         sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr4
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
-        pop si
         inc scan_counter
-        jmp end_right_scan
-    
+        mov ax, si
+        call scan
+        is_in_arr4:
+        pop si
         end_right_scan:
         sub si, 320d
         dec cx
@@ -247,9 +255,16 @@ scan proc uses ax bx cx dx si
         push si
         sub si, 7d
         sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr5
         mov bx, scan_counter
         shl bx, 1
         mov balls_2_explo[bx],si
+        inc scan_counter
+        mov ax, si
+        call scan
+        is_in_arr5:
         pop si
         end_top_right1:
         dec si
@@ -275,11 +290,17 @@ scan proc uses ax bx cx dx si
             push si
             sub si, 7d
             sub si, 960d
+            call find
+            cmp di, 1
+            je is_in_arr6
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
-            pop si
             inc scan_counter
+            mov ax, si
+            call scan
+            is_in_arr6:
+            pop si
             end_top_right2:
             dec si
         loop trio_top_right
@@ -306,31 +327,27 @@ scan proc uses ax bx cx dx si
         jne end_up_scan
         push si
         sub si, 7d 
-        sub si, 960d 
+        sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr7 
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
-        pop si
         inc scan_counter
-        jmp end_up_scan
-
+        mov ax, si
+        call scan
+        is_in_arr7:
+        pop si
         end_up_scan:
         inc si
         dec cx
         cmp cx , 0d 
     jnz up_scan
-    ;call explosion function 
-    cmp scan_counter, 1
-    jae no_explosion
-    call update_lifes
-    ret
-    no_explosion:
-    call explosion
-    ;update points
     ret
 scan endp
 
-update_lifes proc uses ax bx cx
+update_lifes proc uses ax bx cx dx
     dec lifes
     push location_x
     push location_y
@@ -350,8 +367,29 @@ update_lifes proc uses ax bx cx
         mov lifes,5
         call draw_lifes
         cmp time_const_indx,0
-        jne end_life_update
-        mov end_game_T_F, 1
+        jge end_life_update
+        mov time_const_indx, 0
     end_life_update:
     ret
 update_lifes endp
+
+;gets si and return boolian in di (1 == True , 0 == False)
+;if si is in balls_2_explo
+find proc uses bx cx
+    mov cx, 280
+    find_loop:
+        mov bx, 280
+        sub bx, cx
+        cmp balls_2_explo[bx],si
+        je end_find_true
+        cmp balls_2_explo[bx],0
+        je end_find_false
+    loop find_loop
+    end_find_false:
+    mov di, 0
+    ret
+    end_find_true:
+    mov di, 1
+    ret
+
+find endp 

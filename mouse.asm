@@ -31,7 +31,29 @@ check_mouse proc uses ax bx cx dx
     int 33h
     ;do function
     call shoot
+    push ax
+    push dx
+
+    ;scan
+    mov scan_counter, 0
+    mov ax, player_x
+    mov dx, player_y
+    ;Calculate the offset: (Y * 320) + X
+    call loc_incode
+    ;AX = Y * 320 + X
+    pop dx
     call scan
+    pop ax
+    ;call explosion function 
+    cmp scan_counter, 2
+    jb no_explosion
+    call explosion
+    jmp update_player_color
+    no_explosion:
+    call update_lifes
+    ;update points
+
+    update_player_color:
     call get_currBall_nxtBall
     ;Draw Player
     mov location_x, init_player_x
@@ -160,30 +182,6 @@ shoot proc uses ax bx cx dx si di
     
     end_anim:
     ; Animation ends
-
-    push ax
-    push dx
-    mov ax, di
-    mov dx, si
-
-    cmp ah, 2
-    jb no_baby_step_dx
-    sub ah, 1d
-    mov colli_stat, 0
-    no_baby_step_dx:
-    cmp dh, 2
-    jb no_baby_step_dy
-    sub dh, 1d
-    mov colli_stat, 0
-    no_baby_step_dy:
-    mov di, ax
-    mov si, dx
-    cmp colli_stat, 0
-    pop dx
-    pop ax
-    je move_ball
-
-    
     pop dx
     pop ax
     mov ax, player_x
