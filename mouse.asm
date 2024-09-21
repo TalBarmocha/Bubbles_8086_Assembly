@@ -18,40 +18,39 @@ check_mouse proc uses ax bx cx dx
     test bx, 1          ; Check if the button is still pressed
     jnz wait_release    ; If pressed, wait for release
 
-    ;stop counting time
-    call IVT_return
     ; Check bounds (assuming 320x200 resolution)
     cmp mouse_x, 246    
     jae no_click
     cmp mouse_y, 173
     jae no_click
 
+    ;stop counting time
+    call IVT_return
     ;hide cursor
     mov ax, 2
     int 33h
     ;do function
+    sub mouse_x, 6d
+    sub mouse_y, 6d
     call shoot
-    push ax
-    push dx
-
     ;scan
     mov scan_counter, 0
+    call init_balls_2_explo
     mov ax, player_x
     mov dx, player_y
     ;Calculate the offset: (Y * 320) + X
     call loc_incode
     ;AX = Y * 320 + X
-    pop dx
     call scan
-    pop ax
     ;call explosion function 
-    cmp scan_counter, 2
+    cmp scan_counter, 3
     jb no_explosion
     call explosion
+    mov last_explo_T_F, 1
     jmp update_player_color
     no_explosion:
     call update_lifes
-    ;update points
+    mov last_explo_T_F, 0
 
     update_player_color:
     call get_currBall_nxtBall
@@ -181,6 +180,39 @@ shoot proc uses ax bx cx dx si di
     jmp move_ball
     
     end_anim:
+    ;baby step check
+    push ax
+    push dx
+    mov ax, si
+    mov dx, di
+    ;dx check
+    cmp ah, 0
+    jl baby_step_dx_n
+    ;positive
+    cmp ah, 2
+    jb no_baby_step_dx
+        dec ah
+        mov colli_stat, 0
+    jmp no_baby_step_dx
+    ;negative
+    baby_step_dx_n:
+    cmp ah, -2
+    jg no_baby_step_dx
+        inc ah
+        mov colli_stat, 0
+    no_baby_step_dx:
+    ;dy check
+    cmp dh, 2
+    jb no_baby_step_dy
+    dec dh
+    mov colli_stat, 0
+    no_baby_step_dy:
+    mov si, ax
+    mov di, dx
+    pop dx
+    pop ax
+    cmp colli_stat, 0
+    je move_ball
     ; Animation ends
     pop dx
     pop ax

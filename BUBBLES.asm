@@ -20,6 +20,7 @@ next_ball DB 0d
 seed DW 1d
 ;Game:
 score DW 0d  ; MAX score is ≈ 64K -> limit max score to 50K
+last_explo_T_F DB 0d
 lifes DB 5d
 init_player_x equ 119d
 init_player_y equ 180d
@@ -47,6 +48,7 @@ include time.asm
 include random.asm
 include explo.asm
 include convert.asm
+include scoring.asm
 main proc
     mov ax, @data               ; Load data segment address into AX
     mov ds, ax                  ; Move data segment address to DS
@@ -102,6 +104,7 @@ main proc
         mov down_time_counter, 0d
         mov clock_counter, 0d
         mov end_game_T_F, 0d
+        mov last_explo_T_F, 0d
         
         ;hide cursor
         mov ax, 2

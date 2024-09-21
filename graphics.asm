@@ -439,6 +439,7 @@ draw_tiemr proc uses ax bx cx dx di
 draw_tiemr endp
 
 draw_lifes proc uses cx bx
+    xor ch, ch
     push location_x
     push location_y
     mov cl,lifes

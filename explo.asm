@@ -1,4 +1,5 @@
-explosion proc uses si ax dx
+explosion proc uses si ax bx dx
+    mov bx, scan_counter
     array_explo:
         mov si, scan_counter
         dec si
@@ -8,10 +9,11 @@ explosion proc uses si ax dx
         mov location_x, ax
         mov location_y, dx
         call explosion_anim
-        mov balls_2_explo[si],0
         dec scan_counter
         cmp scan_counter, 0
     ja array_explo
+    call update_score
+    call draw_limit_line
     ret
 explosion endp
 
@@ -94,8 +96,8 @@ scan proc uses ax bx cx dx si di
     ;left
     mov si, ax
     sub si, 5d
-    add si, 3520d
-    mov cx, 16d
+    add si, 3200d
+    mov cx, 15d
     left_scan:
         mov bl, es:[si]
         cmp bl, 15d
@@ -116,9 +118,12 @@ scan proc uses ax bx cx dx si di
         mov bx, scan_counter
         shl bx, 1
         mov balls_2_explo[bx],si
+        mov es:[si],34
         inc scan_counter
+        push ax
         mov ax, si
         call scan
+        pop ax
         is_in_arr1:
         pop si
         end_left_scan:
@@ -130,185 +135,48 @@ scan proc uses ax bx cx dx si di
     ;top left
     mov si, ax
     sub si, 5d
-    sub si, 1600d
-    mov cx,2
-    top_left1:
-        mov bl, es:[si]
-        cmp bl, 15d
-        jne end_top_left1
-        cmp es:[si+320], bl
-        jz end_top_left1
-        cmp es:[si-320], bl
-        jz end_top_left1
-        mov dl, current_ball
-        cmp es:[si-320], dl
-        jne end_top_left1
-        push si
-        sub si, 7d
-        sub si, 960d
-        call find
-        cmp di, 1
-        je is_in_arr2
-        mov bx, scan_counter
-        shl bx, 1
-        mov balls_2_explo[bx],si
-        inc scan_counter
-        mov ax, si
-        call scan
-        is_in_arr2:
-        pop si
-        end_top_left1:
-        inc si
-    loop top_left1
-
-    sub si, 322d  ;up one row and two pixels to the left
-    mov cx,3
-    top_left2:
+    sub si, 1600d ; 320 * 5 = 1600
+    mov cx,4
+    top_left:
         push cx
         push si
-        mov cx,3
-        trio_top_left:
+        mov cx,2
+        loop_top_left:
             mov bl, es:[si]
             cmp bl, 15d
-            jne end_top_left2
+            jne end_top_left
             cmp es:[si+320], bl
-            jz end_top_left2
+            jz end_top_left
             cmp es:[si-320], bl
-            jz end_top_left2
+            jz end_top_left
             mov dl, current_ball
             cmp es:[si-320], dl
-            jne end_top_left2
+            jne end_top_left
             push si
             sub si, 7d
             sub si, 960d
             call find
             cmp di, 1
-            je is_in_arr3
+            je is_in_arr2
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
+            mov es:[si],34
             inc scan_counter
+            push ax
             mov ax, si
             call scan
-            is_in_arr3:
+            pop ax
+            is_in_arr2:
             pop si
-            end_top_left2:
+            end_top_left:
             inc si
-        loop trio_top_left
+        loop loop_top_left
         pop si
         pop cx
-        sub si, 319 ;up one row and one pixel to the right
-    loop top_left2
+        sub si, 320 ;down one row
+    loop top_left
     
-    ;right
-    mov si, ax
-    add si, 19d
-    add si, 3520d
-    mov cx, 16d
-    right_scan:
-        mov bl, es:[si]
-        cmp bl, 15d
-        jne end_right_scan
-        cmp es:[si+320], bl
-        jz end_right_scan
-        cmp es:[si-320], bl
-        jz end_right_scan
-        mov dl, current_ball
-        cmp es:[si-320], dl
-        jne end_right_scan
-        push si
-        sub si, 7d
-        sub si, 960d
-        call find
-        cmp di, 1
-        je is_in_arr4
-        mov bx, scan_counter
-        shl bx, 1 
-        mov balls_2_explo[bx],si
-        inc scan_counter
-        mov ax, si
-        call scan
-        is_in_arr4:
-        pop si
-        end_right_scan:
-        sub si, 320d
-        dec cx
-        cmp cx , 0d 
-    jnz right_scan
-    
-    ;top right
-    mov si, ax
-    add si, 19d
-    sub si, 1600d
-    mov cx,2
-    top_right1:
-        mov bl, es:[si]
-        cmp bl, 15d
-        jne end_top_right1
-        cmp es:[si+320], bl
-        jz end_top_right1
-        cmp es:[si-320], bl
-        jz end_top_right1
-        mov dl, current_ball
-        cmp es:[si-320], dl
-        jne end_top_right1
-        push si
-        sub si, 7d
-        sub si, 960d
-        call find
-        cmp di, 1
-        je is_in_arr5
-        mov bx, scan_counter
-        shl bx, 1
-        mov balls_2_explo[bx],si
-        inc scan_counter
-        mov ax, si
-        call scan
-        is_in_arr5:
-        pop si
-        end_top_right1:
-        dec si
-    loop top_right1
-
-    sub si, 318d  ;up one row and two pixels to the right
-    mov cx,3
-    top_right2:
-        push cx
-        push si
-        mov cx,3
-        trio_top_right:
-            mov bl, es:[si]
-            cmp bl, 15d
-            jne end_top_right2
-            cmp es:[si+320], bl
-            jz end_top_right2
-            cmp es:[si-320], bl
-            jz end_top_right2
-            mov dl, current_ball
-            cmp es:[si-320], dl
-            jne end_top_right2
-            push si
-            sub si, 7d
-            sub si, 960d
-            call find
-            cmp di, 1
-            je is_in_arr6
-            mov bx, scan_counter
-            shl bx, 1
-            mov balls_2_explo[bx],si
-            inc scan_counter
-            mov ax, si
-            call scan
-            is_in_arr6:
-            pop si
-            end_top_right2:
-            dec si
-        loop trio_top_right
-        pop si
-        pop cx
-        sub si, 321 ;up one row and one pixel to the left
-    loop top_right2
-
     ;up
     mov si, ax
     sub si, 2d
@@ -330,20 +198,237 @@ scan proc uses ax bx cx dx si di
         sub si, 960d
         call find
         cmp di, 1
-        je is_in_arr7 
+        je is_in_arr3 
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
+        mov es:[si],34
         inc scan_counter
+        push ax
         mov ax, si
         call scan
-        is_in_arr7:
+        pop ax
+        is_in_arr3:
         pop si
         end_up_scan:
         inc si
         dec cx
         cmp cx , 0d 
     jnz up_scan
+
+    ;top right
+    mov si, ax
+    add si, 19d
+    sub si, 1600d
+    mov cx, 4
+    top_right:
+        push cx
+        push si
+        mov cx,2
+        loop_top_right:
+            mov bl, es:[si]
+            cmp bl, 15d
+            jne end_top_right
+            cmp es:[si+320], bl
+            jz end_top_right
+            cmp es:[si-320], bl
+            jz end_top_right
+            mov dl, current_ball
+            cmp es:[si-320], dl
+            jne end_top_right
+            push si
+            sub si, 7d
+            sub si, 960d
+            call find
+            cmp di, 1
+            je is_in_arr4
+            mov bx, scan_counter
+            shl bx, 1
+            mov balls_2_explo[bx],si
+            mov es:[si],34
+            inc scan_counter
+            push ax
+            mov ax, si
+            call scan
+            pop ax
+            is_in_arr4:
+            pop si
+            end_top_right:
+            dec si
+        loop loop_top_right
+        pop si
+        pop cx
+        sub si, 320 ;down one row
+    loop top_right
+
+    ;right
+    mov si, ax
+    add si, 19d
+    add si, 3200d
+    mov cx, 15d
+    right_scan:
+        mov bl, es:[si]
+        cmp bl, 15d
+        jne end_right_scan
+        cmp es:[si+320], bl
+        jz end_right_scan
+        cmp es:[si-320], bl
+        jz end_right_scan
+        mov dl, current_ball
+        cmp es:[si-320], dl
+        jne end_right_scan
+        push si
+        sub si, 7d
+        sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr5
+        mov bx, scan_counter
+        shl bx, 1 
+        mov balls_2_explo[bx],si
+        mov es:[si],34
+        inc scan_counter
+        push ax
+        mov ax, si
+        call scan
+        pop ax
+        is_in_arr5:
+        pop si
+        end_right_scan:
+        sub si, 320d
+        dec cx
+        cmp cx , 0d 
+    jnz right_scan
+    
+    ;bottom right
+    mov si, ax
+    add si, 19d
+    add si, 3520d
+    mov cx, 4
+    bottom_right:
+        push cx
+        push si
+        mov cx,2
+        loop_bottom_right:
+            mov bl, es:[si]
+            cmp bl, 15d
+            jne end_bottom_right
+            cmp es:[si+320], bl
+            jz end_bottom_right
+            cmp es:[si-320], bl
+            jz end_bottom_right
+            mov dl, current_ball
+            cmp es:[si-320], dl
+            jne end_bottom_right
+            push si
+            sub si, 7d
+            sub si, 960d
+            call find
+            cmp di, 1
+            je is_in_arr6
+            mov bx, scan_counter
+            shl bx, 1
+            mov balls_2_explo[bx],si
+            mov es:[si],34
+            inc scan_counter
+            push ax
+            mov ax, si
+            call scan
+            pop ax
+            is_in_arr6:
+            pop si
+            end_bottom_right:
+            dec si
+        loop loop_bottom_right
+        pop si
+        pop cx
+        add si, 320 ;down one row
+    loop bottom_right
+    
+    ;down
+    mov si, ax
+    sub si, 1d
+    add si, 4800d
+    mov cx, 17d
+    down_scan:
+        mov bl, es:[si]   ; BL = color at (AX, DX)
+        cmp bl, 15d
+        jne end_down_scan
+        cmp es:[si+320], bl
+        jz end_down_scan
+        cmp es:[si-320], bl
+        jz end_down_scan
+        mov dl, current_ball
+        cmp es:[si-320], dl
+        jne end_down_scan
+        push si
+        sub si, 7d 
+        sub si, 960d
+        call find
+        cmp di, 1
+        je is_in_arr7 
+        mov bx, scan_counter
+        shl bx, 1 
+        mov balls_2_explo[bx],si
+        mov es:[si],34
+        inc scan_counter
+        push ax
+        mov ax, si
+        call scan
+        pop ax
+        is_in_arr7:
+        pop si
+        end_down_scan:
+        inc si
+        dec cx
+        cmp cx , 0d 
+    jnz down_scan
+
+    ;bottom left
+    mov si, ax
+    add si, 5d
+    add si, 3520d
+    mov cx,4
+    bottom_left:
+        push cx
+        push si
+        mov cx,2
+        loop_bottom_left:
+            mov bl, es:[si]
+            cmp bl, 15d
+            jne end_bottom_left
+            cmp es:[si+320], bl
+            jz end_bottom_left
+            cmp es:[si-320], bl
+            jz end_bottom_left
+            mov dl, current_ball
+            cmp es:[si-320], dl
+            jne end_bottom_left
+            push si
+            sub si, 7d
+            sub si, 960d
+            call find
+            cmp di, 1
+            je is_in_arr8
+            mov bx, scan_counter
+            shl bx, 1
+            mov balls_2_explo[bx],si
+            mov es:[si],34
+            inc scan_counter
+            push ax
+            mov ax, si
+            call scan
+            pop ax
+            is_in_arr8:
+            pop si
+            end_bottom_left:
+            inc si
+        loop loop_bottom_left
+        pop si
+        pop cx
+        add si, 320 ;down one row
+    loop bottom_left
+
     ret
 scan endp
 
@@ -361,14 +446,13 @@ update_lifes proc uses ax bx cx dx
     call draw_ball
     pop location_y
     pop location_x
-    cmp lifes,0
+    cmp lifes, 0
     jne end_life_update
-        dec time_const_indx
-        mov lifes,5
+        mov lifes, 5
         call draw_lifes
         cmp time_const_indx,0
-        jge end_life_update
-        mov time_const_indx, 0
+        je end_life_update
+        dec time_const_indx
     end_life_update:
     ret
 update_lifes endp
@@ -393,3 +477,14 @@ find proc uses bx cx
     ret
 
 find endp 
+
+;init balls array to 0
+init_balls_2_explo proc uses bx cx
+    mov cx, 280
+    erase_arr_loop:
+        mov bx, cx
+        sub bx, 1
+        mov balls_2_explo[bx],0
+    loop erase_arr_loop
+    ret
+init_balls_2_explo endp 
