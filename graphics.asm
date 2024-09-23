@@ -391,7 +391,7 @@ shift_visual endp
 ;starting at location_x and location_y as the
 ;top left cornet of the number
 ;==================================================
-draw_tiemr proc uses ax bx cx dx di
+draw_timer proc uses ax bx cx dx di
     xor bh,bh
     mov bl,down_time_counter
     push location_x 
@@ -436,7 +436,7 @@ draw_tiemr proc uses ax bx cx dx di
     pop location_y
     pop location_x 
     ret
-draw_tiemr endp
+draw_timer endp
 
 draw_lifes proc uses cx bx
     xor ch, ch

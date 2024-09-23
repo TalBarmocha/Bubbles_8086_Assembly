@@ -22,7 +22,7 @@ new_Int1C proc far uses ax bx
     cmp clock_counter, al  ; Check if counter >= time constent
     jl clock_advance              ; If less, jump to advance
     inc down_time_counter
-    call draw_tiemr
+    call draw_timer
     mov clock_counter, 0d
     cmp down_time_counter,20
     jb clock_advance
@@ -31,7 +31,7 @@ new_Int1C proc far uses ax bx
     call shift_visual
     call draw_balls_line
     mov down_time_counter, 0d
-    call draw_tiemr
+    call draw_timer
     ;down a line
     clock_advance:
     int 80h                 ; Call DOS interrupt for timer
