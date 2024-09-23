@@ -1,5 +1,5 @@
 .model small        
-.stack 200h         
+.stack 100h         
 
 .data
 ;Graphics:
