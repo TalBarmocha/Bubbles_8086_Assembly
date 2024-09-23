@@ -118,7 +118,6 @@ scan proc uses ax bx cx dx si di
         mov bx, scan_counter
         shl bx, 1
         mov balls_2_explo[bx],si
-        mov es:[si],34
         inc scan_counter
         push ax
         mov ax, si
@@ -139,7 +138,6 @@ scan proc uses ax bx cx dx si di
     mov cx,4
     top_left:
         push cx
-        push si
         mov cx,2
         loop_top_left:
             mov bl, es:[si]
@@ -161,7 +159,6 @@ scan proc uses ax bx cx dx si di
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
-            mov es:[si],34
             inc scan_counter
             push ax
             mov ax, si
@@ -172,9 +169,8 @@ scan proc uses ax bx cx dx si di
             end_top_left:
             inc si
         loop loop_top_left
-        pop si
         pop cx
-        sub si, 320 ;down one row
+        sub si, 321 ;down one row
     loop top_left
     
     ;up
@@ -202,7 +198,6 @@ scan proc uses ax bx cx dx si di
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
-        mov es:[si],34
         inc scan_counter
         push ax
         mov ax, si
@@ -223,7 +218,6 @@ scan proc uses ax bx cx dx si di
     mov cx, 4
     top_right:
         push cx
-        push si
         mov cx,2
         loop_top_right:
             mov bl, es:[si]
@@ -245,7 +239,6 @@ scan proc uses ax bx cx dx si di
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
-            mov es:[si],34
             inc scan_counter
             push ax
             mov ax, si
@@ -256,9 +249,8 @@ scan proc uses ax bx cx dx si di
             end_top_right:
             dec si
         loop loop_top_right
-        pop si
         pop cx
-        sub si, 320 ;down one row
+        sub si, 319 ;down one row
     loop top_right
 
     ;right
@@ -286,7 +278,6 @@ scan proc uses ax bx cx dx si di
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
-        mov es:[si],34
         inc scan_counter
         push ax
         mov ax, si
@@ -307,7 +298,6 @@ scan proc uses ax bx cx dx si di
     mov cx, 4
     bottom_right:
         push cx
-        push si
         mov cx,2
         loop_bottom_right:
             mov bl, es:[si]
@@ -329,7 +319,6 @@ scan proc uses ax bx cx dx si di
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
-            mov es:[si],34
             inc scan_counter
             push ax
             mov ax, si
@@ -340,9 +329,8 @@ scan proc uses ax bx cx dx si di
             end_bottom_right:
             dec si
         loop loop_bottom_right
-        pop si
         pop cx
-        add si, 320 ;down one row
+        add si, 321 ;down one row
     loop bottom_right
     
     ;down
@@ -370,7 +358,6 @@ scan proc uses ax bx cx dx si di
         mov bx, scan_counter
         shl bx, 1 
         mov balls_2_explo[bx],si
-        mov es:[si],34
         inc scan_counter
         push ax
         mov ax, si
@@ -386,12 +373,11 @@ scan proc uses ax bx cx dx si di
 
     ;bottom left
     mov si, ax
-    add si, 5d
+    sub si, 5d
     add si, 3520d
     mov cx,4
     bottom_left:
         push cx
-        push si
         mov cx,2
         loop_bottom_left:
             mov bl, es:[si]
@@ -413,7 +399,6 @@ scan proc uses ax bx cx dx si di
             mov bx, scan_counter
             shl bx, 1
             mov balls_2_explo[bx],si
-            mov es:[si],34
             inc scan_counter
             push ax
             mov ax, si
@@ -424,9 +409,8 @@ scan proc uses ax bx cx dx si di
             end_bottom_left:
             inc si
         loop loop_bottom_left
-        pop si
         pop cx
-        add si, 320 ;down one row
+        add si, 319 ;down one row
     loop bottom_left
 
     ret
