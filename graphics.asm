@@ -3,7 +3,7 @@ GAME_START proc
     call background
     call game_frame
     call print_score
-    call draw_tiemr
+    call draw_timer
     ;draw initial ball lines
     mov cx,6d
     call get_sec_RTC
