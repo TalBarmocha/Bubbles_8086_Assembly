@@ -291,6 +291,33 @@ check_collision proc uses di es si cx
         jbe bubble_collision
         inc si
     loop row_check
+    mov di, space_point
+    cmp ax, 0
+    jne cornerchck
+    add di, 321d
+    mov cx, 2d
+    xor si, si
+    two_corner1chck:
+        push di
+        add di, si
+        mov bl, es:[di]   ; BL = color at (AX, DX)
+        pop di
+        cmp bl, 48d
+        jbe bubble_collision
+        add si, 9
+    loop two_corner1chck
+    add di, 319d
+    mov cx, 2d
+    xor si, si
+    two_corner2chck:
+        push di
+        add di, si
+        mov bl, es:[di]   ; BL = color at (AX, DX)
+        pop di
+        cmp bl, 48d
+        jbe bubble_collision
+        add si, 11
+    loop two_corner2chck
 
     mov di, space_point
     ;corners check

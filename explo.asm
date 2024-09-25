@@ -138,7 +138,7 @@ scan proc uses ax bx cx dx si di
     mov cx,4
     top_left:
         push cx
-        mov cx,2
+        mov cx,4
         loop_top_left:
             mov bl, es:[si]
             cmp bl, 15d
@@ -170,7 +170,7 @@ scan proc uses ax bx cx dx si di
             inc si
         loop loop_top_left
         pop cx
-        sub si, 321 ;down one row
+        sub si, 323 ;down one row
     loop top_left
     
     ;up
@@ -218,7 +218,7 @@ scan proc uses ax bx cx dx si di
     mov cx, 4
     top_right:
         push cx
-        mov cx,2
+        mov cx,4
         loop_top_right:
             mov bl, es:[si]
             cmp bl, 15d
@@ -250,7 +250,7 @@ scan proc uses ax bx cx dx si di
             dec si
         loop loop_top_right
         pop cx
-        sub si, 319 ;down one row
+        sub si, 317 ;down one row
     loop top_right
 
     ;right
@@ -298,7 +298,7 @@ scan proc uses ax bx cx dx si di
     mov cx, 4
     bottom_right:
         push cx
-        mov cx,2
+        mov cx,4
         loop_bottom_right:
             mov bl, es:[si]
             cmp bl, 15d
@@ -330,7 +330,7 @@ scan proc uses ax bx cx dx si di
             dec si
         loop loop_bottom_right
         pop cx
-        add si, 321 ;down one row
+        add si, 323 ;down one row
     loop bottom_right
     
     ;down
@@ -378,7 +378,7 @@ scan proc uses ax bx cx dx si di
     mov cx,4
     bottom_left:
         push cx
-        mov cx,2
+        mov cx,4
         loop_bottom_left:
             mov bl, es:[si]
             cmp bl, 15d
@@ -410,7 +410,7 @@ scan proc uses ax bx cx dx si di
             inc si
         loop loop_bottom_left
         pop cx
-        add si, 319 ;down one row
+        add si, 317 ;down one row
     loop bottom_left
 
     ret
