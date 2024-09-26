@@ -19,7 +19,7 @@ current_ball DB 0d
 next_ball DB 0d
 seed DW 1d
 ;Game:
-score DW 0d  ; MAX score is ≈ 64K -> limit max score to 50K
+score DW 49000d  ; MAX score is ≈ 64K -> limit max score to 50K
 last_explo_T_F DB 0d
 lifes DB 5d
 init_player_x equ 119d
@@ -156,6 +156,12 @@ end_game_chck proc uses ax cx dx si di
     inc di
     loop end_game_loop
     mov end_game_T_F, bh
+    
+    ;check reaching max score
+    cmp score, 50000
+    jb end_end_game_check
+    mov end_game_T_F, 1
+    end_end_game_check:
     ret
 end_game_chck endp
 

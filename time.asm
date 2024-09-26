@@ -12,30 +12,50 @@ get_sec_RTC proc uses ax
 get_sec_RTC endp
 
 ;==================================================
-;This procedure handles the timer interrupt
+; new_Int1C - Timer Interrupt Handler Procedure
+; This procedure handles the timer interrupt, which
+; is responsible for timing and managing game events.
+; 
+; time_constent array:
+;   Index 0: 28  -> around 30 sec (slowest)
+;   Index 1: 19  -> around 20 sec
+;   Index 2: 9   -> around 10 sec
+;   Index 3: 5   -> around 5 sec (fastest)
+;
+; Registers used: 
+;   - ax, bx (preserved by 'uses' directive)
 ;==================================================
 new_Int1C proc far uses ax bx
-    inc clock_counter       ; Increment clock counter
-    xor bh,bh
-    mov bl,time_const_indx
-    mov al, time_constent[bx]
-    cmp clock_counter, al  ; Check if counter >= time constent
-    jl clock_advance              ; If less, jump to advance
-    inc down_time_counter
-    call draw_timer
-    mov clock_counter, 0d
-    cmp down_time_counter,20
-    jb clock_advance
-    mov location_x, init_row_x
-    mov location_y, init_row_y
-    call shift_visual
-    call draw_balls_line
-    mov down_time_counter, 0d
-    call draw_timer
-    ;down a line
-    clock_advance:
-    int 80h                 ; Call DOS interrupt for timer
-    iret                    ; Return from interrupt
+    inc clock_counter               ; Increment clock counter
+    
+    xor bh, bh                      ; Clear BH register
+    mov bl, time_const_indx         ; Load the time constant index into BL
+    mov al, time_constent[bx]       ; Get the time constant from the array
+    
+    cmp clock_counter, al           ; Compare clock counter with time constant
+    jl clock_advance                ; If clock counter < time constant, jump to clock_advance
+    
+    inc down_time_counter           ; Increment down time counter
+    call draw_timer                 ; Call procedure to update the timer display
+    
+    mov clock_counter, 0d           ; Reset clock counter to 0
+    
+    cmp down_time_counter, 20       ; Check if down time counter >= 20
+    jb clock_advance                ; If less, jump to clock_advance
+    
+    mov location_x, init_row_x      ; Reset location_x to initial row x-coordinate
+    mov location_y, init_row_y      ; Reset location_y to initial row y-coordinate
+    
+    call shift_visual               ; Call procedure to shift visual elements
+    call draw_balls_line            ; Call procedure to draw a line of balls
+    
+    mov down_time_counter, 0d       ; Reset down time counter to 0
+    call draw_timer                 ; Call procedure to update the timer display
+    
+    ; Continue to the next clock advance step
+clock_advance:
+    int 80h                         ; Call DOS interrupt for timer (adjust this as needed)
+    iret                            ; Return from interrupt
 new_Int1C endp
 
 ;==================================================

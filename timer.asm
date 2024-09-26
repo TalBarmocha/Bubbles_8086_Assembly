@@ -344,11 +344,3 @@ clock_frames DW offset timer_f0,offset timer_f1,offset timer_f2,offset timer_f3,
              DW offset timer_f5,offset timer_f6,offset timer_f7,offset timer_f8,offset timer_f9
              DW offset timer_f10,offset timer_f11,offset timer_f12,offset timer_f13,offset timer_f14
              DW offset timer_f15,offset timer_f16,offset timer_f17,offset timer_f18,offset timer_f19
-
-;TODO - down_time should be always 20d, the change should be in how we preceve a second
-; clock_counter = 28 --> 30 sec round (slowest)
-; clock_counter = 23 --> 25 sec round
-; clock_counter = 19 --> 20 sec round
-; clock_counter = 14 --> 15 sec round
-; clock_counter = 9  --> 10 sec round
-; clock_counter = 5  --> 5  sec round (fastest)
