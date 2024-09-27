@@ -1,3 +1,8 @@
+;==================================================
+;Goes through the array of bubbles that are in sequence 
+;and activates their explosion according to their 
+;position saved in the array
+;==================================================
 explosion proc uses si ax bx dx
     mov bx, scan_counter
     array_explo:
@@ -91,7 +96,11 @@ animation_frame proc uses ax bx cx dx di si
     ret
 animation_frame endp
 
-;takes AX = (Y * 320 + X) and scans the radius of the ball
+;==================================================
+;This procedure takes AX = (Y * 320 + X) and scans the radius of the ball
+;When passing on a route adapted to the sides, up and down, 
+;and to the upper and lower edges on the sides accordingly
+;==================================================
 scan proc uses ax bx cx dx si di
     ;left
     mov si, ax
@@ -416,6 +425,12 @@ scan proc uses ax bx cx dx si di
     ret
 scan endp
 
+;==================================================
+;This procedure updates the player's remaining lives and accordingly 
+;draws empty balls for each lost life
+;As soon as you reach a state of 0 life, the function updates 
+;the speed of the drop of the row of balls accordingly and the timer
+;==================================================
 update_lifes proc uses ax bx cx dx
     dec lifes
     push location_x
@@ -441,8 +456,10 @@ update_lifes proc uses ax bx cx dx
     ret
 update_lifes endp
 
-;gets si and return boolian in di (1 == True , 0 == False)
+;==================================================
+;This procedure gets si and return boolian in di (1 == True , 0 == False)
 ;if si is in balls_2_explo
+;==================================================
 find proc uses bx cx
     mov cx, 280
     find_loop:
@@ -459,10 +476,11 @@ find proc uses bx cx
     end_find_true:
     mov di, 1
     ret
-
 find endp 
 
-;init balls array to 0
+;==================================================
+;This procedure initialize balls array to 0
+;==================================================
 init_balls_2_explo proc uses bx cx
     mov cx, 280
     erase_arr_loop:

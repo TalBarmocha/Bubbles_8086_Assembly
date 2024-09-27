@@ -85,6 +85,7 @@ main proc
     jmp main_loop
     ;restart
     restart:
+        ;Initialization of all variables and all registers respectively
         xor ax, ax
         xor bx, bx
         xor cx, cx

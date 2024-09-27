@@ -30,12 +30,12 @@ check_mouse proc uses ax bx cx dx
     mov ax, 2
     int 33h
     ;do function
-    sub mouse_x, 6d
-    sub mouse_y, 6d
+    sub mouse_x, 6d     ;Designed for the center of the bubble to come to a point
+    sub mouse_y, 6d     ;Designed for the center of the bubble to come to a point
     call shoot
     ;scan
     mov scan_counter, 0
-    call init_balls_2_explo
+    call init_balls_2_explo     ;initialization of the array
     mov ax, player_x
     mov dx, player_y
     ;Calculate the offset: (Y * 320) + X
@@ -48,9 +48,9 @@ check_mouse proc uses ax bx cx dx
     call explosion
     mov last_explo_T_F, 1
     jmp update_player_color
-    no_explosion:
+    no_explosion:               ;In case no recursion was counted, a sequence of 3 or more bubbles
     call update_lifes
-    mov last_explo_T_F, 0
+    mov last_explo_T_F, 0       ;Initialize this boolean variable for the double score
 
     update_player_color:
     call get_currBall_nxtBall
@@ -132,7 +132,7 @@ shoot proc uses ax bx cx dx si di
     mov player_x, ax
     mov player_y, dx
 
-    move_ball:
+    move_ball:                  ;Loop of the displacement of the bubble on the screen until it collides
     mov ax, player_x
     add ax, si
     mov dx, player_y
@@ -151,14 +151,14 @@ shoot proc uses ax bx cx dx si di
     call check_collision
     cmp colli_stat, 2
     jne no_wall_colli
-    neg si  ; Reverse direction if collision detected
+    neg si  ; Reverse direction if collision with a wall detected
  
     no_wall_colli:
     cmp colli_stat, 1
     je end_anim
     call erase_current_ball
     cmp dx, 161d
-    jb no_line_need
+    jb no_line_need             ;When the ball passes or cuts the line, it is necessary to redraw
     call draw_limit_line
     no_line_need:
     mov location_x, ax
@@ -232,6 +232,7 @@ shoot endp
 ; Output: colli_stat = 1 if there is collision with bubles and 2 if there is collision with wall 0 if not (bool func)
 ;==================================================
 check_collision proc uses di es si cx
+    ;Stage a collision check with the wall and update the variable accordingly
     mov colli_stat, 0
     cmp ax, 4      
     jbe out_of_range  
@@ -278,7 +279,7 @@ check_collision proc uses di es si cx
     mov di, space_point
     ;row check
     cmp dx, 0
-    je cornerchck
+    je cornerchck       ;In a situation where the bubble only moves along the X axis and you only need to check it's sides for collision
     add di, 2d
     mov cx, 8d
     xor si, si
@@ -293,7 +294,8 @@ check_collision proc uses di es si cx
     loop row_check
     mov di, space_point
     cmp ax, 0
-    jne cornerchck
+    jne cornerchck  
+    ;In a situation where the bubble only moves along the Y axis and you only need to check it's sides for collision
     add di, 321d
     mov cx, 2d
     xor si, si
@@ -390,6 +392,7 @@ erase_current_ball proc uses cx di ax dx
             mov al, ball[di]       
             cmp al,99
             je erase_continiue
+            ;When we got to a pixel that is not the background at the edges
             mov al, background_color  
             push cx
             mov ah,0Ch 
