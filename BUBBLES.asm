@@ -19,7 +19,7 @@ current_ball DB 0d
 next_ball DB 0d
 seed DW 1d
 ;Game:
-score DW 49000d  ; MAX score is ≈ 64K -> limit max score to 50K
+score DW 0d  ; MAX score is ≈ 64K -> limit max score to 50K
 last_explo_T_F DB 0d
 lifes DB 5d
 init_player_x equ 119d
