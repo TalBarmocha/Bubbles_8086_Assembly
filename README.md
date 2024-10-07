@@ -1,6 +1,8 @@
 # Bubble Shooter Game for 8086 Processor
 Welcome to the Bubble Shooter game developed for the 8086 processor in assembly language! This game is an **original take-off** for the well known game **Bubble Shooter**, a classic arcade puzzle where the player controls a shooter at the bottom of the screen, aiming to launch colored bubbles towards a cluster of bubbles at the top. The primary objective is to match three or more bubbles of the same color, causing them to burst and disappear from the play area.
 
+![Game Photo](https://github.com/TalBarmocha/Bubbles_8086_Assembly/blob/main/Game%20Photo.jpg)
+
 ## Original Bubble Shooter Game
 
 Bubble Shooter is a classic arcade puzzle game where the player controls a shooter at the bottom of the screen, aiming to launch colored bubbles towards a cluster of bubbles at the top. The primary objective is to match three or more bubbles of the same color, causing them to burst and disappear from the play area. Players must strategically aim and shoot bubbles to create these matches, clear the screen, and prevent the bubbles from reaching the bottom, which would end the game. The game challenges players to achieve high scores by creating chain reactions of bursting bubbles and efficiently managing the growing mass of bubbles. The main goals are to clear as many bubbles as possible, maximize points through strategic shooting, and avoid letting the bubbles overwhelm the player’s position.
